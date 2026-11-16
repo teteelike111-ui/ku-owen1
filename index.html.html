@@ -1,0 +1,2119 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KU Course & Exam Planner 2569 — ศศ.บ. ปรัชญาและศาสนา มก.</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Noto Sans Thai"', 'sans-serif'],
+          },
+          colors: {
+            ku: {
+              primary: '#00665E',
+              dark: '#004B45',
+              light: '#E6F2F1',
+              accent: '#B4975A',
+              gold: '#D4AF37'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Noto Sans Thai', sans-serif;
+      background-color: #F4F7F6;
+      color: #1E293B;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F1F5F9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="bg-ku-primary text-white shadow-md sticky top-0 z-30">
+    <div class="max-w-[1520px] mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <!-- Brand & Subtitle -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-white/15 border border-white/25 flex items-center justify-center font-bold text-lg tracking-tight shadow-inner">
+          KU
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="font-bold text-base sm:text-lg leading-tight">KU Course & Exam Planner</h1>
+            <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-ku-gold text-ku-dark">ภาคปลาย 2569 (บางเขน)</span>
+          </div>
+          <p class="text-xs text-emerald-100">หลักสูตร ศศ.บ. ปรัชญาและศาสนา มหาวิทยาลัยเกษตรศาสตร์</p>
+        </div>
+      </div>
+
+      <!-- Action Toolbar -->
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Auto-save status pill -->
+        <div id="save-status-badge" class="text-[11px] font-medium px-2.5 py-1.5 rounded-xl bg-emerald-950/60 text-emerald-200 border border-emerald-400/30 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>บันทึกอัตโนมัติแล้ว (รีเฟรชไม่หาย)</span>
+        </div>
+
+        <!-- Primary Add Button (my.ku.th & Manual only) -->
+        <button onclick="openAddModal('parser')" class="bg-ku-gold hover:bg-yellow-500 text-ku-dark font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          <span>+ เพิ่มวิชาจาก my.ku.th</span>
+        </button>
+
+        <!-- Copy Shareable State URL -->
+        <button onclick="copyShareLink()" title="คัดลอกลิงก์ที่บรรจุข้อมูลตารางเรียนทั้งหมดไว้ใน URL" class="bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm px-3 py-2 rounded-xl border border-white/25 transition flex items-center gap-1.5 cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          <span class="hidden md:inline">คัดลอกลิงก์แชร์ตาราง</span>
+        </button>
+
+        <!-- Export JSON -->
+        <button onclick="exportJSON()" title="ดาวน์โหลดไฟล์สำรองข้อมูล JSON" class="bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm px-3 py-2 rounded-xl border border-white/25 transition flex items-center gap-1.5 cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          <span class="hidden lg:inline">สำรองข้อมูล</span>
+        </button>
+
+        <!-- Import JSON -->
+        <label title="นำเข้าไฟล์สำรองข้อมูล JSON" class="bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm px-3 py-2 rounded-xl border border-white/25 transition flex items-center gap-1.5 cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+          <span class="hidden lg:inline">กู้คืนไฟล์</span>
+          <input type="file" accept=".json" onchange="importJSON(event)" class="hidden" />
+        </label>
+
+        <!-- Reset -->
+        <button onclick="openResetConfirm()" title="รีเซ็ตกลับเป็นวิชาตั้งต้น 3 วิชา" class="bg-rose-500/85 hover:bg-rose-600 text-white text-xs sm:text-sm px-3 py-2 rounded-xl transition flex items-center gap-1 cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <span class="hidden sm:inline">รีเซ็ต</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE -->
+  <main class="flex-1 max-w-[1520px] w-full mx-auto px-4 py-5 space-y-5">
+
+    <!-- 1. REAL-TIME CONFLICT & CREDIT STATUS BANNER -->
+    <section id="conflict-banner" class="rounded-2xl border p-4 shadow-xs transition-all">
+      <!-- Populated dynamically by JS -->
+    </section>
+
+    <!-- 2. TWO-COLUMN RESPONSIVE DASHBOARD -->
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
+
+      <!-- LEFT COLUMN: COURSE & SECTION MANAGER (5 cols on xl) -->
+      <div class="xl:col-span-5 space-y-4">
+        <div class="bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
+          <!-- Card Header -->
+          <div class="px-4 py-3.5 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                <span>รายการวิชาที่วางแผนลงทะเบียน</span>
+                <span id="course-count-badge" class="text-xs font-bold px-2 py-0.5 rounded-full bg-ku-light text-ku-primary">0 วิชา</span>
+              </h2>
+              <p class="text-xs text-slate-500 mt-0.5">เลือกหมู่เรียนเพื่อดูเวลาเรียนบนตารางและตรวจวันสอบอัตโนมัติ</p>
+            </div>
+            <div class="text-right">
+              <div class="text-[11px] text-slate-500">หน่วยกิตรวมที่เลือก</div>
+              <div id="total-credits-display" class="font-bold text-lg text-ku-primary leading-tight">0 หน่วยกิต</div>
+            </div>
+          </div>
+
+          <!-- Category Filter Pills -->
+          <div id="category-tabs" class="px-4 py-2.5 bg-white border-b border-slate-100 flex flex-wrap gap-1.5">
+            <!-- Rendered by JS -->
+          </div>
+
+          <!-- Course List Container -->
+          <div id="course-list" class="p-4 space-y-3.5 max-h-[820px] overflow-y-auto">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: WEEKLY TIMETABLE & EXAM SUMMARY (7 cols on xl) -->
+      <div class="xl:col-span-7 space-y-5">
+
+        <!-- A. WEEKLY TIMETABLE GRID (08:00 - 21:00) -->
+        <div class="bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
+          <div class="px-4 py-3.5 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="font-bold text-slate-800 text-base">ตารางเรียนรายสัปดาห์ (08:00 – 21:00 น.)</h2>
+              <p class="text-xs text-slate-500">แสดงคาบเรียนทั้งหมด (รวมทั้งบรรยายและปฏิบัติของหมู่ที่เลือก)</p>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-emerald-500 inline-block"></span> ปกติ</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-rose-500 inline-block"></span> เวลาเรียนทับกัน</span>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto p-3">
+            <div id="timetable-wrapper" class="min-w-[780px]">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- B. MIDTERM & FINAL EXAM SCHEDULE SUMMARY -->
+        <div class="bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
+          <div class="px-4 py-3.5 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="font-bold text-slate-800 text-base">สรุปตารางสอบกลางภาค และ สอบปลายภาค (ภาคปลาย 2569)</h2>
+              <p class="text-xs text-slate-500">
+                อ้างอิงจาก <span class="font-semibold text-ku-primary">(ร่าง) ประกาศตารางสอบ ภาคปลาย 2569</span> และตารางสอบปี 2568 (กรณีรายวิชายังไม่อยู่ในร่างปี 69)
+              </p>
+            </div>
+            <span class="text-[11px] bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-lg font-medium">
+              * ข้อมูลวันสอบเป็นค่าประมาณการ โปรดตรวจสอบประกาศทางการอีกครั้ง
+            </span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+              <thead>
+                <tr class="bg-slate-100/80 text-slate-600 border-b border-slate-200 text-xs uppercase">
+                  <th class="py-2.5 px-3.5 font-semibold">รหัสวิชา / ชื่อวิชา</th>
+                  <th class="py-2.5 px-3 font-semibold text-center">หมู่</th>
+                  <th class="py-2.5 px-3 font-semibold">สอบกลางภาค (Midterm)</th>
+                  <th class="py-2.5 px-3 font-semibold">สอบปลายภาค (Final)</th>
+                  <th class="py-2.5 px-3 font-semibold text-right">จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="exam-summary-tbody" class="divide-y divide-slate-100">
+                <!-- Rendered by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL 1: ADD COURSE FROM MY.KU.TH OR MANUAL ENTRY (NO CATALOG) -->
+  <div id="add-modal" class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
+      <div class="bg-ku-dark text-white px-5 py-3.5 flex items-center justify-between">
+        <h3 class="font-bold text-base">เพิ่มรายวิชาจากข้อมูลจริง (my.ku.th)</h3>
+        <button onclick="closeAddModal()" class="text-white/70 hover:text-white cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Mode Tabs -->
+      <div class="flex flex-wrap border-b border-slate-200 bg-slate-50 px-5 pt-2 gap-2">
+        <button id="modal-tab-parser" onclick="switchModalTab('parser')" class="px-3.5 py-2 text-xs sm:text-sm font-bold border-b-2 border-ku-primary text-ku-primary cursor-pointer">
+          1. วางข้อความจาก my.ku.th (วางทีละหลายวิชาพร้อมกันได้)
+        </button>
+        <button id="modal-tab-manual" onclick="switchModalTab('manual')" class="px-3.5 py-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 cursor-pointer">
+          2. กรอกข้อมูลรายวิชาเอง
+        </button>
+      </div>
+
+      <!-- TAB 1: SMART BULK PARSER -->
+      <div id="modal-body-parser" class="p-5 overflow-y-auto space-y-4">
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 text-xs text-emerald-900 space-y-1">
+          <div class="font-bold">วิธีใช้งานง่าย ๆ:</div>
+          <ol class="list-decimal list-inside space-y-0.5 text-emerald-800">
+            <li>เปิดหน้าค้นหารายวิชาใน <strong>my.ku.th</strong> แล้วกดเลือกข้อความทั้งหมด (<kbd class="px-1.5 py-0.5 bg-white rounded border">Ctrl+A</kbd> แล้ว <kbd class="px-1.5 py-0.5 bg-white rounded border">Ctrl+C</kbd>)</li>
+            <li>นำมาวางในช่องด้านล่างนี้ (สามารถวางต่อกันทีละหลายวิชาได้เลย)</li>
+            <li>ระบบจะ <strong>รวมหมู่บรรยาย + ปฏิบัติ</strong> ที่เลขหมู่ตรงกันให้เป็นหมู่เดียว จัดหมวดหมู่ (ปรัชญาและศาสนา / GenEd) และดึงวันสอบให้อัตโนมัติ</li>
+          </ol>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">วางข้อความที่คัดลอกจากหน้าเว็บ my.ku.th ที่นี่:</label>
+          <textarea id="parser-textarea" rows="9" placeholder="ตัวอย่าง:
+01387111-67
+ปรัชญาเบื้องต้น
+(Introduction to Philosophy)
+หมู่ 1 (บรรยาย
+ประเภทหมู่เรียน : ปกติ
+TUE 9:30-11:00 ห้อง ศร.3-301
+THU 9:30-11:00 ห้อง ศร.3-301
+3 หน่วยกิต" class="w-full rounded-xl border border-slate-300 p-3 text-xs sm:text-sm focus:ring-2 focus:ring-ku-primary focus:border-ku-primary outline-none"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-1">
+          <button onclick="closeAddModal()" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 cursor-pointer">ยกเลิก</button>
+          <button onclick="parseAndAddCourse()" class="px-5 py-2 rounded-xl text-sm font-bold bg-ku-primary hover:bg-ku-dark text-white shadow-sm cursor-pointer">
+            ประมวลผลและเพิ่มรายวิชา
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 2: MANUAL FORM -->
+      <div id="modal-body-manual" class="p-5 overflow-y-auto space-y-3.5 hidden">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">รหัสวิชา (8 หลัก) *</label>
+            <input id="man-code" type="text" maxlength="8" placeholder="เช่น 01387111" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-ku-primary" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">หน่วยกิต *</label>
+            <input id="man-credits" type="number" min="1" max="6" value="3" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-ku-primary" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">หมวดหมู่วิชา</label>
+            <select id="man-category" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-ku-primary">
+              <option value="AUTO">จัดหมวดหมู่อัตโนมัติตามรหัส</option>
+              <option value="วิชาเฉพาะบังคับ">วิชาเฉพาะบังคับ</option>
+              <option value="วิชาเฉพาะเลือก">วิชาเฉพาะเลือก</option>
+              <option value="ศึกษาทั่วไป">ศึกษาทั่วไป (GenEd)</option>
+              <option value="วิชาเลือกเสรี">วิชาเลือกเสรี / นอกสาขา</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อวิชา (ภาษาไทย) *</label>
+            <input id="man-name-th" type="text" placeholder="เช่น ปรัชญาเบื้องต้น" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-ku-primary" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อวิชา (ภาษาอังกฤษ)</label>
+            <input id="man-name-en" type="text" placeholder="เช่น Introduction to Philosophy" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-ku-primary" />
+          </div>
+        </div>
+
+        <div class="border-t border-slate-200 pt-3">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-700">กำหนดหมู่เรียนและเวลาเรียน</span>
+            <button type="button" onclick="addManualSectionRow()" class="text-xs font-semibold text-ku-primary hover:underline cursor-pointer">+ เพิ่มหมู่เรียน</button>
+          </div>
+          <div id="manual-sections-container" class="space-y-2.5">
+            <!-- Section rows injected here -->
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button onclick="closeAddModal()" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 cursor-pointer">ยกเลิก</button>
+          <button onclick="submitManualCourse()" class="px-5 py-2 rounded-xl text-sm font-bold bg-ku-primary hover:bg-ku-dark text-white shadow-sm cursor-pointer">
+            บันทึกรายวิชา
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: STANDARDIZED EXAM SCHEDULE EDITOR (BUG FIX 4) -->
+  <div id="exam-modal" class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
+      <div class="bg-ku-dark text-white px-5 py-3.5 flex items-center justify-between">
+        <div>
+          <h3 class="font-bold text-base">แก้ไขวันและเวลาสอบ</h3>
+          <p id="exam-modal-subtitle" class="text-xs text-emerald-200"></p>
+        </div>
+        <button onclick="closeExamModal()" class="text-white/70 hover:text-white cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4 text-sm">
+        <input type="hidden" id="exam-edit-course-id" />
+
+        <!-- Midterm Section -->
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-800 text-xs uppercase tracking-wide">สอบกลางภาค (Midterm)</span>
+            <select id="midterm-preset" onchange="toggleExamInputs('midterm')" class="text-xs rounded-lg border border-slate-300 px-2 py-1 bg-white">
+              <option value="SCHEDULED">กำหนดวัน/เวลาสอบตามตาราง</option>
+              <option value="SELF">รายวิชาจัดสอบเอง / สอบในคาบ</option>
+              <option value="NONE">ไม่มีสอบกลางภาค</option>
+            </select>
+          </div>
+          <div id="midterm-datetime-fields" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">วันสอบกลางภาค (ช่วงสอบ 2569)</label>
+              <select id="midterm-date-select" class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs bg-white">
+                <option value="2027-01-09">เสาร์ที่ 9 มกราคม 2570</option>
+                <option value="2027-01-10">อาทิตย์ที่ 10 มกราคม 2570</option>
+                <option value="2027-01-11">จันทร์ที่ 11 มกราคม 2570</option>
+                <option value="2027-01-12">อังคารที่ 12 มกราคม 2570</option>
+                <option value="2027-01-13">พุธที่ 13 มกราคม 2570</option>
+                <option value="2027-01-14">พฤหัสบดีที่ 14 มกราคม 2570</option>
+                <option value="2027-01-15">ศุกร์ที่ 15 มกราคม 2570</option>
+                <option value="2027-01-16">เสาร์ที่ 16 มกราคม 2570</option>
+                <option value="2027-01-17">อาทิตย์ที่ 17 มกราคม 2570</option>
+                <option value="CUSTOM">เลือกวันที่อื่นเอง...</option>
+              </select>
+              <input id="midterm-custom-date" type="date" class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs bg-white mt-1.5 hidden" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">ช่วงเวลาสอบ</label>
+              <select id="midterm-slot-select" class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs bg-white">
+                <option value="09:00-11:00">09.00 - 11.00 น. (เช้า)</option>
+                <option value="12:00-14:00">12.00 - 14.00 น. (เที่ยง)</option>
+                <option value="14:30-16:30">14.30 - 16.30 น. (บ่าย)</option>
+                <option value="17:00-19:00">17.00 - 19.00 น. (เย็น)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Final Section -->
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-800 text-xs uppercase tracking-wide">สอบปลายภาค (Final)</span>
+            <select id="final-preset" onchange="toggleExamInputs('final')" class="text-xs rounded-lg border border-slate-300 px-2 py-1 bg-white">
+              <option value="SCHEDULED">กำหนดวัน/เวลาสอบตามตาราง</option>
+              <option value="SELF">รายวิชาจัดสอบเอง / สอบในคาบ</option>
+              <option value="NONE">ไม่มีสอบปลายภาค</option>
+            </select>
+          </div>
+          <div id="final-datetime-fields" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">วันสอบปลายภาค (ช่วงสอบ 2569)</label>
+              <select id="final-date-select" class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs bg-white">
+                <option value="2027-03-15">จันทร์ที่ 15 มีนาคม 2570</option>
+                <option value="2027-03-16">อังคารที่ 16 มีนาคม 2570</option>
+                <option value="2027-03-17">พุธที่ 17 มีนาคม 2570</option>
+                <option value="2027-03-18">พฤหัสบดีที่ 18 มีนาคม 2570</option>
+                <option value="2027-03-19">ศุกร์ที่ 19 มีนาคม 2570</option>
+                <option value="2027-03-20">เสาร์ที่ 20 มีนาคม 2570</option>
+                <option value="2027-03-21">อาทิตย์ที่ 21 มีนาคม 2570</option>
+                <option value="2027-03-22">จันทร์ที่ 22 มีนาคม 2570</option>
+                <option value="2027-03-23">อังคารที่ 23 มีนาคม 2570</option>
+                <option value="2027-03-24">พุธที่ 24 มีนาคม 2570</option>
+                <option value="2027-03-25">พฤหัสบดีที่ 25 มีนาคม 2570</option>
+                <option value="2027-03-26">ศุกร์ที่ 26 มีนาคม 2570</option>
+                <option value="CUSTOM">เลือกวันที่อื่นเอง...</option>
+              </select>
+              <input id="final-custom-date" type="date" class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs bg-white mt-1.5 hidden" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">ช่วงเวลาสอบ</label>
+              <select id="final-slot-select" class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs bg-white">
+                <option value="09:00-11:00">09.00 - 11.00 น. (เช้า)</option>
+                <option value="12:00-14:00">12.00 - 14.00 น. (เที่ยง)</option>
+                <option value="14:30-16:30">14.30 - 16.30 น. (บ่าย)</option>
+                <option value="17:00-19:00">17.00 - 19.00 น. (เย็น)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center pt-1">
+          <button onclick="resetCourseExamToAuto()" class="text-xs font-semibold text-slate-500 hover:text-ku-primary underline cursor-pointer">
+            คืนค่าตามประกาศ มก. อัตโนมัติ
+          </button>
+          <div class="flex gap-2">
+            <button onclick="closeExamModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-100 cursor-pointer">ยกเลิก</button>
+            <button onclick="saveExamModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-ku-primary hover:bg-ku-dark text-white shadow-sm cursor-pointer">บันทึกวันสอบ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: CUSTOM CONFIRMATION DIALOG (NO NATIVE confirm/alert) -->
+  <div id="confirm-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-5 space-y-4 border border-slate-200">
+      <h3 id="confirm-title" class="font-bold text-base text-slate-800">ยืนยันการทำรายการ</h3>
+      <p id="confirm-message" class="text-sm text-slate-600"></p>
+      <div class="flex justify-end gap-2">
+        <button onclick="closeConfirmModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 cursor-pointer">ยกเลิก</button>
+        <button id="confirm-ok-btn" class="px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white cursor-pointer">ยืนยัน</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2 pointer-events-none"></div>
+
+  <script>
+    // =========================================================================
+    // 1. EMBEDDED DATABASES: PHILOSOPHY & RELIGION CURRICULUM + KU GENED 2564
+    // =========================================================================
+    const PHIL_REQUIRED_CODES = new Set([
+      "01387111", "01387121", "01387211", "01387212", "01387221", "01387223",
+      "01387321", "01387322", "01387323", "01387324", "01387442",
+      "01388111", "01388221", "01388231", "01388241", "01388251",
+      "01388321", "01388323", "01387491", "01388491", "01387497", "01388497"
+    ]);
+
+    const PHIL_ELECTIVE_CODES = new Set([
+      "01387213", "01387222", "01387224", "01387225", "01387241", "01387242",
+      "01387243", "01387331", "01387332", "01387333", "01387334", "01387341",
+      "01387342", "01387431", "01387432", "01387441", "01387443", "01387444",
+      "01387445", "01387446", "01388121", "01388211", "01388222", "01388261",
+      "01388262", "01388263", "01388311", "01388322", "01388324", "01388325",
+      "01388326", "01388331", "01388411", "01388421", "01388441", "01388461",
+      "01387390", "01387490", "01388490"
+    ]);
+
+    // GenEd Sub-groups from KU 2564 GenEd Curriculum PDF
+    const GENED_GROUP_MAP = {
+      // 1. กลุ่มสาระอยู่ดีมีสุข (Wellness)
+      "01173151": "อยู่ดีมีสุข", "01174123": "อยู่ดีมีสุข", "01174231": "อยู่ดีมีสุข",
+      "01176141": "อยู่ดีมีสุข", "01350103": "อยู่ดีมีสุข", "01387101": "อยู่ดีมีสุข",
+      "01387103": "อยู่ดีมีสุข", "01390103": "อยู่ดีมีสุข", "01402101": "อยู่ดีมีสุข",
+      "01416101": "อยู่ดีมีสุข", "01418103": "อยู่ดีมีสุข", "01421201": "อยู่ดีมีสุข",
+      "01453102": "อยู่ดีมีสุข", "01459101": "อยู่ดีมีสุข", "01459102": "อยู่ดีมีสุข",
+      "01999011": "อยู่ดีมีสุข", "01999012": "อยู่ดีมีสุข", "01999033": "อยู่ดีมีสุข",
+      "01999036": "อยู่ดีมีสุข", "01999048": "อยู่ดีมีสุข", "01999051": "อยู่ดีมีสุข",
+      "01999213": "อยู่ดีมีสุข", "02032303": "อยู่ดีมีสุข", "02032304": "อยู่ดีมีสุข",
+      "02717011": "อยู่ดีมีสุข", "02724012": "อยู่ดีมีสุข", "02727104": "อยู่ดีมีสุข",
+      "02728101": "อยู่ดีมีสุข", "02999038": "อยู่ดีมีสุข", "02999044": "อยู่ดีมีสุข",
+      "02999045": "อยู่ดีมีสุข", "03521101": "อยู่ดีมีสุข", "03654112": "อยู่ดีมีสุข",
+      "03654113": "อยู่ดีมีสุข", "03654114": "อยู่ดีมีสุข", "04101201": "อยู่ดีมีสุข",
+      "04355181": "อยู่ดีมีสุข", "04355185": "อยู่ดีมีสุข (พลศึกษา)", "04837111": "อยู่ดีมีสุข (พลศึกษา)",
+
+      // 2. กลุ่มสาระศาสตร์แห่งผู้ประกอบการ (Entrepreneurship)
+      "01005101": "ศาสตร์แห่งผู้ประกอบการ", "01101101": "ศาสตร์แห่งผู้ประกอบการ",
+      "01131111": "ศาสตร์แห่งผู้ประกอบการ", "01177141": "ศาสตร์แห่งผู้ประกอบการ",
+      "01200101": "ศาสตร์แห่งผู้ประกอบการ", "01242001": "ศาสตร์แห่งผู้ประกอบการ",
+      "01387105": "ศาสตร์แห่งผู้ประกอบการ", "01390104": "ศาสตร์แห่งผู้ประกอบการ",
+      "01418102": "ศาสตร์แห่งผู้ประกอบการ", "01453103": "ศาสตร์แห่งผู้ประกอบการ",
+      "01999041": "ศาสตร์แห่งผู้ประกอบการ", "01999043": "ศาสตร์แห่งผู้ประกอบการ",
+      "01999112": "ศาสตร์แห่งผู้ประกอบการ", "02714101": "ศาสตร์แห่งผู้ประกอบการ",
+      "02721121": "ศาสตร์แห่งผู้ประกอบการ", "03600014": "ศาสตร์แห่งผู้ประกอบการ",
+      "03757123": "ศาสตร์แห่งผู้ประกอบการ",
+
+      // 3. กลุ่มสาระภาษากับการสื่อสาร (Language & Communication)
+      "01361101": "ภาษากับการสื่อสาร (ไทย)", "01361102": "ภาษากับการสื่อสาร (ไทย)",
+      "01361103": "ภาษากับการสื่อสาร (ไทย)", "01999021": "ภาษากับการสื่อสาร (ไทย)",
+      "01999022": "ภาษากับการสื่อสาร (ไทย)", "02701011": "ภาษากับการสื่อสาร (ไทย)",
+      "01354101": "ภาษากับการสื่อสาร (ต่างประเทศ)", "01354102": "ภาษากับการสื่อสาร (ต่างประเทศ)",
+      "01354103": "ภาษากับการสื่อสาร (ต่างประเทศ)",
+      "01355101": "ภาษากับการสื่อสาร (อังกฤษ)", "01355102": "ภาษากับการสื่อสาร (อังกฤษ)",
+      "01355103": "ภาษากับการสื่อสาร (อังกฤษ)", "01355104": "ภาษากับการสื่อสาร (อังกฤษ)",
+      "01355105": "ภาษากับการสื่อสาร (อังกฤษ)", "01355106": "ภาษากับการสื่อสาร (อังกฤษ)",
+      "01355107": "ภาษากับการสื่อสาร (อังกฤษ)", "01355108": "ภาษากับการสื่อสาร (อังกฤษ)",
+      "01355109": "ภาษากับการสื่อสาร (อังกฤษ)", "01355119": "ภาษากับการสื่อสาร (อังกฤษ)",
+      "01355121": "ภาษากับการสื่อสาร (อังกฤษ)", "01355201": "ภาษากับการสื่อสาร (อังกฤษ)",
+      "01355202": "ภาษากับการสื่อสาร (อังกฤษ)", "01355203": "ภาษากับการสื่อสาร (อังกฤษ)",
+      "01355204": "ภาษากับการสื่อสาร (อังกฤษ)", "01355205": "ภาษากับการสื่อสาร (อังกฤษ)",
+      "01355206": "ภาษากับการสื่อสาร (อังกฤษ)", "01355207": "ภาษากับการสื่อสาร (อังกฤษ)",
+      "01355208": "ภาษากับการสื่อสาร (อังกฤษ)", "01355209": "ภาษากับการสื่อสาร (อังกฤษ)",
+      "01355303": "ภาษากับการสื่อสาร (อังกฤษ)", "01355307": "ภาษากับการสื่อสาร (อังกฤษ)",
+      "01356101": "ภาษากับการสื่อสาร (ฝรั่งเศส)", "01356102": "ภาษากับการสื่อสาร (ฝรั่งเศส)",
+      "01356103": "ภาษากับการสื่อสาร (ฝรั่งเศส)", "01356104": "ภาษากับการสื่อสาร (ฝรั่งเศส)",
+      "01357101": "ภาษากับการสื่อสาร (เยอรมัน)", "01357102": "ภาษากับการสื่อสาร (เยอรมัน)",
+      "01357103": "ภาษากับการสื่อสาร (เยอรมัน)", "01357104": "ภาษากับการสื่อสาร (เยอรมัน)",
+      "01358101": "ภาษากับการสื่อสาร (ญี่ปุ่น)", "01358102": "ภาษากับการสื่อสาร (ญี่ปุ่น)",
+      "01358103": "ภาษากับการสื่อสาร (ญี่ปุ่น)", "01358104": "ภาษากับการสื่อสาร (ญี่ปุ่น)",
+      "01362101": "ภาษากับการสื่อสาร (จีน)", "01362102": "ภาษากับการสื่อสาร (จีน)",
+      "01362201": "ภาษากับการสื่อสาร (จีน)", "01362202": "ภาษากับการสื่อสาร (จีน)",
+      "01362301": "ภาษากับการสื่อสาร (จีน)",
+      "01395101": "ภาษากับการสื่อสาร (เกาหลี)", "01395102": "ภาษากับการสื่อสาร (เกาหลี)",
+      "01395103": "ภาษากับการสื่อสาร (เกาหลี)", "01395104": "ภาษากับการสื่อสาร (เกาหลี)",
+      "01395105": "ภาษากับการสื่อสาร (เกาหลี)",
+      "01399101": "ภาษากับการสื่อสาร (เวียดนาม)", "01399102": "ภาษากับการสื่อสาร (เวียดนาม)",
+      "01399103": "ภาษากับการสื่อสาร (เวียดนาม)", "01399104": "ภาษากับการสื่อสาร (เวียดนาม)",
+      "01399105": "ภาษากับการสื่อสาร (เวียดนาม)", "01399106": "ภาษากับการสื่อสาร (เวียดนาม)",
+      "02724011": "ภาษากับการสื่อสาร (ต่างประเทศ)",
+      "03754221": "ภาษากับการสื่อสาร (อังกฤษ)", "03754231": "ภาษากับการสื่อสาร (อังกฤษ)",
+      "03754241": "ภาษากับการสื่อสาร (อังกฤษ)", "03754251": "ภาษากับการสื่อสาร (อังกฤษ)",
+      "03754271": "ภาษากับการสื่อสาร (อังกฤษ)",
+      "01371111": "ภาษากับการสื่อสาร (สารสนเทศ)", "01418101": "ภาษากับการสื่อสาร (สารสนเทศ)",
+      "01418104": "ภาษากับการสื่อสาร (สารสนเทศ)", "01418106": "ภาษากับการสื่อสาร (สารสนเทศ)",
+      "01999023": "ภาษากับการสื่อสาร (สารสนเทศ)", "03600013": "ภาษากับการสื่อสาร (สารสนเทศ)",
+      "03752111": "ภาษากับการสื่อสาร (สารสนเทศ)",
+
+      // 4. กลุ่มสาระพลเมืองไทยและพลเมืองโลก (Thai & Global Citizen)
+      "01999111": "พลเมืองไทยและพลเมืองโลก (บังคับ)", "01001317": "พลเมืองไทยและพลเมืองโลก",
+      "01009102": "พลเมืองไทยและพลเมืองโลก", "01015202": "พลเมืองไทยและพลเมืองโลก",
+      "01301101": "พลเมืองไทยและพลเมืองโลก", "01350104": "พลเมืองไทยและพลเมืองโลก",
+      "01390102": "พลเมืองไทยและพลเมืองโลก", "01453101": "พลเมืองไทยและพลเมืองโลก",
+      "01455101": "พลเมืองไทยและพลเมืองโลก", "01460101": "พลเมืองไทยและพลเมืองโลก",
+      "01999013": "พลเมืองไทยและพลเมืองโลก", "01999031": "พลเมืองไทยและพลเมืองโลก",
+      "01999032": "พลเมืองไทยและพลเมืองโลก", "01999046": "พลเมืองไทยและพลเมืองโลก",
+      "01999047": "พลเมืองไทยและพลเมืองโลก", "01999141": "พลเมืองไทยและพลเมืองโลก",
+      "02717112": "พลเมืองไทยและพลเมืองโลก", "02999042": "พลเมืองไทยและพลเมืองโลก",
+      "02999144": "พลเมืองไทยและพลเมืองโลก", "02999147": "พลเมืองไทยและพลเมืองโลก",
+      "03751111": "พลเมืองไทยและพลเมืองโลก", "03751112": "พลเมืองไทยและพลเมืองโลก",
+      "04101302": "พลเมืองไทยและพลเมืองโลก",
+
+      // 5. กลุ่มสาระสุนทรียศาสตร์ (Aesthetics)
+      "01007101": "สุนทรียศาสตร์", "01240011": "สุนทรียศาสตร์", "01244101": "สุนทรียศาสตร์",
+      "01255101": "สุนทรียศาสตร์", "01308101": "สุนทรียศาสตร์", "01350102": "สุนทรียศาสตร์",
+      "01387102": "สุนทรียศาสตร์", "01401201": "สุนทรียศาสตร์", "01418105": "สุนทรียศาสตร์",
+      "01420201": "สุนทรียศาสตร์", "01999034": "สุนทรียศาสตร์", "01999035": "สุนทรียศาสตร์",
+      "02708102": "สุนทรียศาสตร์", "02728102": "สุนทรียศาสตร์", "02999037": "สุนทรียศาสตร์",
+      "03600012": "สุนทรียศาสตร์", "03654111": "สุนทรียศาสตร์"
+    };
+
+    function classifyCourseCode(code) {
+      const clean = (code || "").trim().slice(0, 8);
+      if (PHIL_REQUIRED_CODES.has(clean)) {
+        return { category: "วิชาเฉพาะบังคับ", subGroup: "ปรัชญาและศาสนา" };
+      }
+      if (PHIL_ELECTIVE_CODES.has(clean)) {
+        return { category: "วิชาเฉพาะเลือก", subGroup: "ปรัชญาและศาสนา" };
+      }
+      if (clean.startsWith("01175")) {
+        return { category: "ศึกษาทั่วไป", subGroup: "อยู่ดีมีสุข (พลศึกษา)" };
+      }
+      if (GENED_GROUP_MAP[clean]) {
+        return { category: "ศึกษาทั่วไป", subGroup: GENED_GROUP_MAP[clean] };
+      }
+      if (clean.startsWith("01999") || clean.startsWith("02999")) {
+        return { category: "ศึกษาทั่วไป", subGroup: "หมวดศึกษาทั่วไป" };
+      }
+      if (clean.startsWith("01387") || clean.startsWith("01388")) {
+        return { category: "วิชาเฉพาะเลือก", subGroup: "สาขาปรัชญาและศาสนา" };
+      }
+      return { category: "วิชาเลือกเสรี", subGroup: "นอกสาขา / เลือกเสรี" };
+    }
+
+    // =========================================================================
+    // 2. EMBEDDED EXAM SCHEDULES: 2569 DRAFT (TIER 1) + 2568 FALLBACK (TIER 2)
+    //    Supports multiple entries per course code (e.g., BOT/ZOO Lect vs Lab)
+    // =========================================================================
+    const EXAM_DB_2569 = {
+      midterm: [
+        // เสาร์ที่ 9 มกราคม 2570
+        { date: "2027-01-09", label: "เสาร์ที่ 9 ม.ค. 2570", slot: "09:00-11:00", codes: ["01999035", "01999041"] },
+        { date: "2027-01-09", label: "เสาร์ที่ 9 ม.ค. 2570", slot: "12:00-14:00", codes: ["01999043", "01999141", "01132332"] },
+        { date: "2027-01-09", label: "เสาร์ที่ 9 ม.ค. 2570", slot: "14:30-16:30", codes: ["01132231", "01418113"] },
+        // อาทิตย์ที่ 10 มกราคม 2570
+        { date: "2027-01-10", label: "อาทิตย์ที่ 10 ม.ค. 2570", slot: "09:00-11:00", codes: ["01999021", "01123374"] },
+        { date: "2027-01-10", label: "อาทิตย์ที่ 10 ม.ค. 2570", slot: "12:00-14:00", codes: ["01999031", "01999034"] },
+        // จันทร์ที่ 11 มกราคม 2570
+        { date: "2027-01-11", label: "จันทร์ที่ 11 ม.ค. 2570", slot: "09:00-11:00", codes: ["01355102", "01355103", "01355107", "01355109", "01355281"] },
+        { date: "2027-01-11", label: "จันทร์ที่ 11 ม.ค. 2570", slot: "12:00-14:00", codes: ["01101372", "01123222", "01125212", "01355106", "01355304", "01419211"] },
+        { date: "2027-01-11", label: "จันทร์ที่ 11 ม.ค. 2570", slot: "14:30-16:30", codes: ["01125425", "01299219", "01402313"] },
+        // อังคารที่ 12 มกราคม 2570
+        { date: "2027-01-12", label: "อังคารที่ 12 ม.ค. 2570", slot: "09:00-11:00", codes: ["01101181", "01123354", "01306241", "01355203", "01355501"] },
+        { date: "2027-01-12", label: "อังคารที่ 12 ม.ค. 2570", slot: "12:00-14:00", codes: ["01003111", "01132413", "01355209", "01355132", "01355213", "01417111"] },
+        { date: "2027-01-12", label: "อังคารที่ 12 ม.ค. 2570", slot: "14:30-16:30", codes: ["01101231", "01123223", "01132111", "01402311", "01418112", "01424111"] },
+        // พุธที่ 13 มกราคม 2570
+        { date: "2027-01-13", label: "พุธที่ 13 ม.ค. 2570", slot: "09:00-11:00", codes: ["01005221", "01101101", "01101273", "01125112", "01420111", "01420118"] },
+        { date: "2027-01-13", label: "พุธที่ 13 ม.ค. 2570", slot: "12:00-14:00", codes: ["01007271", "01101182", "01101282", "01123224", "01204161", "01355141", "01355261", "01402312", "01423113:ZOO Lab."] },
+        { date: "2027-01-13", label: "พุธที่ 13 ม.ค. 2570", slot: "14:30-16:30", codes: ["01355362", "01417168"] },
+        // พฤหัสบดีที่ 14 มกราคม 2570
+        { date: "2027-01-14", label: "พฤหัสบดีที่ 14 ม.ค. 2570", slot: "09:00-11:00", codes: ["01101284", "01119341", "01123213", "01361102", "01402111", "01417116", "01422111"] },
+        { date: "2027-01-14", label: "พฤหัสบดีที่ 14 ม.ค. 2570", slot: "12:00-14:00", codes: ["01101272", "01119381", "01120381", "01123121", "01362101", "01401114:BOT Lab.", "01402315", "01417322", "01420112:สอบออนไลน์ในห้องสอบ"] },
+        { date: "2027-01-14", label: "พฤหัสบดีที่ 14 ม.ค. 2570", slot: "14:30-16:30", codes: ["01101375", "01133211", "01403113", "01403221"] },
+        // ศุกร์ที่ 15 มกราคม 2570
+        { date: "2027-01-15", label: "ศุกร์ที่ 15 ม.ค. 2570", slot: "09:00-11:00", codes: ["01134212", "01355205", "01402112", "01417167", "01422311", "01423113:ZOO Lect.", "01424112"] },
+        { date: "2027-01-15", label: "ศุกร์ที่ 15 ม.ค. 2570", slot: "12:00-14:00", codes: ["01002111", "01125333", "01417112"] },
+        { date: "2027-01-15", label: "ศุกร์ที่ 15 ม.ค. 2570", slot: "14:30-16:30", codes: ["01002101", "01403115", "01403111", "01403117", "01403119"] },
+        // เสาร์ที่ 16 มกราคม 2570
+        { date: "2027-01-16", label: "เสาร์ที่ 16 ม.ค. 2570", slot: "09:00-11:00", codes: ["01101281", "01355119", "01356101", "01420119"] },
+        { date: "2027-01-16", label: "เสาร์ที่ 16 ม.ค. 2570", slot: "12:00-14:00", codes: ["01005101", "01101321", "01306211", "01459101"] },
+        { date: "2027-01-16", label: "เสาร์ที่ 16 ม.ค. 2570", slot: "14:30-16:30", codes: ["01003112", "01306111", "01390113", "01403231"] },
+        // อาทิตย์ที่ 17 มกราคม 2570
+        { date: "2027-01-17", label: "อาทิตย์ที่ 17 ม.ค. 2570", slot: "09:00-11:00", codes: ["01125231", "01134111"] },
+        { date: "2027-01-17", label: "อาทิตย์ที่ 17 ม.ค. 2570", slot: "12:00-14:00", codes: ["01101312", "01125131", "01361101", "01401114:BOT Lect."] },
+        { date: "2027-01-17", label: "อาทิตย์ที่ 17 ม.ค. 2570", slot: "14:30-16:30", codes: ["01009102", "01299218", "01403224", "01416311:ภาควิชาจัดสอบเอง", "01420117"] }
+      ],
+      final: [
+        // จันทร์ที่ 15 มีนาคม 2570
+        { date: "2027-03-15", label: "จันทร์ที่ 15 มี.ค. 2570", slot: "09:00-11:00", codes: ["01355102", "01355107"] },
+        { date: "2027-03-15", label: "จันทร์ที่ 15 มี.ค. 2570", slot: "12:00-14:00", codes: ["01119381", "01120381", "01123121", "01125131", "01355304", "01419211"] },
+        { date: "2027-03-15", label: "จันทร์ที่ 15 มี.ค. 2570", slot: "14:30-16:30", codes: ["01132231", "01355103"] },
+        // อังคารที่ 16 มีนาคม 2570
+        { date: "2027-03-16", label: "อังคารที่ 16 มี.ค. 2570", slot: "09:00-11:00", codes: ["01355106", "01355109", "01355133", "01355311", "01355203", "01355501", "01417112"] },
+        { date: "2027-03-16", label: "อังคารที่ 16 มี.ค. 2570", slot: "12:00-14:00", codes: ["01125212", "01355141", "01355261", "01355209", "01362101", "01402315", "01417111"] },
+        { date: "2027-03-16", label: "อังคารที่ 16 มี.ค. 2570", slot: "14:30-16:30", codes: ["01101181", "01101321", "01123223", "01306111"] },
+        // พุธที่ 17 มีนาคม 2570
+        { date: "2027-03-17", label: "พุธที่ 17 มี.ค. 2570", slot: "09:00-11:00", codes: ["01101101", "01420111", "01420118"] },
+        { date: "2027-03-17", label: "พุธที่ 17 มี.ค. 2570", slot: "12:00-14:00", codes: ["01417116", "01101273", "01123111", "01123222", "01355132", "01355213", "01401114:BOT Lect."] },
+        { date: "2027-03-17", label: "พุธที่ 17 มี.ค. 2570", slot: "14:30-16:30", codes: ["01299219", "01355362", "01402311", "01416312", "01417281", "01417322"] },
+        // พฤหัสบดีที่ 18 มีนาคม 2570
+        { date: "2027-03-18", label: "พฤหัสบดีที่ 18 มี.ค. 2570", slot: "09:00-11:00", codes: ["01101284", "01355381", "01417168", "01422111"] },
+        { date: "2027-03-18", label: "พฤหัสบดีที่ 18 มี.ค. 2570", slot: "12:00-14:00", codes: ["01007271", "01355119", "01420112:สอบออนไลน์ในห้องสอบ"] },
+        { date: "2027-03-18", label: "พฤหัสบดีที่ 18 มี.ค. 2570", slot: "14:30-16:30", codes: ["01002101", "01101375", "01125112", "01125333", "01401114:BOT Lab.", "01418112"] },
+        // ศุกร์ที่ 19 มีนาคม 2570
+        { date: "2027-03-19", label: "ศุกร์ที่ 19 มี.ค. 2570", slot: "09:00-11:00", codes: ["01355205", "01355303", "01417167", "01423113:ZOO Lect.", "01424112"] },
+        { date: "2027-03-19", label: "ศุกร์ที่ 19 มี.ค. 2570", slot: "12:00-14:00", codes: ["01002111", "01403224", "01459101"] },
+        { date: "2027-03-19", label: "ศุกร์ที่ 19 มี.ค. 2570", slot: "14:30-16:30", codes: ["01101231", "01133211", "01134322", "01403221", "01403227", "01403231"] },
+        // เสาร์ที่ 20 มีนาคม 2570
+        { date: "2027-03-20", label: "เสาร์ที่ 20 มี.ค. 2570", slot: "09:00-11:00", codes: ["01356101", "01999035", "01999041"] },
+        { date: "2027-03-20", label: "เสาร์ที่ 20 มี.ค. 2570", slot: "12:00-14:00", codes: ["01999043", "01999141"] },
+        // อาทิตย์ที่ 21 มีนาคม 2570
+        { date: "2027-03-21", label: "อาทิตย์ที่ 21 มี.ค. 2570", slot: "09:00-11:00", codes: ["01390113", "01999021"] },
+        { date: "2027-03-21", label: "อาทิตย์ที่ 21 มี.ค. 2570", slot: "12:00-14:00", codes: ["01999034", "01999213", "02999144"] },
+        { date: "2027-03-21", label: "อาทิตย์ที่ 21 มี.ค. 2570", slot: "14:30-16:30", codes: ["01999031", "01999036"] },
+        // จันทร์ที่ 22 มีนาคม 2570
+        { date: "2027-03-22", label: "จันทร์ที่ 22 มี.ค. 2570", slot: "09:00-11:00", codes: ["01101312", "01134212", "01299201:ภาควิชาจัดสอบเอง", "01306211", "01402111", "01418113", "01419214"] },
+        { date: "2027-03-22", label: "จันทร์ที่ 22 มี.ค. 2570", slot: "12:00-14:00", codes: ["01003111", "01119341", "01123213", "01361102"] },
+        { date: "2027-03-22", label: "จันทร์ที่ 22 มี.ค. 2570", slot: "14:30-16:30", codes: ["01125425", "01132332", "01403111", "01403115", "01403117", "01403119"] },
+        // อังคารที่ 23 มีนาคม 2570
+        { date: "2027-03-23", label: "อังคารที่ 23 มี.ค. 2570", slot: "09:00-11:00", codes: ["01101182", "01101282", "01361101", "01402312", "01423113:ZOO Lab."] },
+        { date: "2027-03-23", label: "อังคารที่ 23 มี.ค. 2570", slot: "12:00-14:00", codes: ["01132413", "01134111", "01402313"] },
+        { date: "2027-03-23", label: "อังคารที่ 23 มี.ค. 2570", slot: "14:30-16:30", codes: ["01132111", "01306241", "01422311", "01424111"] },
+        // พุธที่ 24 มีนาคม 2570
+        { date: "2027-03-24", label: "พุธที่ 24 มี.ค. 2570", slot: "09:00-11:00", codes: ["01101272", "01123224", "01402112", "01416311:ภาควิชาจัดสอบเอง"] },
+        { date: "2027-03-24", label: "พุธที่ 24 มี.ค. 2570", slot: "12:00-14:00", codes: ["01204161", "01403112", "01403114", "01403232"] },
+        { date: "2027-03-24", label: "พุธที่ 24 มี.ค. 2570", slot: "14:30-16:30", codes: ["01123374", "01299218", "01403118"] },
+        // พฤหัสบดีที่ 25 มีนาคม 2570
+        { date: "2027-03-25", label: "พฤหัสบดีที่ 25 มี.ค. 2570", slot: "09:00-11:00", codes: ["01005221", "01123353", "01134321", "01306242"] },
+        { date: "2027-03-25", label: "พฤหัสบดีที่ 25 มี.ค. 2570", slot: "12:00-14:00", codes: ["01387101", "01420117"] },
+        { date: "2027-03-25", label: "พฤหัสบดีที่ 25 มี.ค. 2570", slot: "14:30-16:30", codes: ["01125231", "01387102", "01403113"] },
+        // ศุกร์ที่ 26 มีนาคม 2570
+        { date: "2027-03-26", label: "ศุกร์ที่ 26 มี.ค. 2570", slot: "09:00-11:00", codes: ["01005101", "01101372", "01420119"] },
+        { date: "2027-03-26", label: "ศุกร์ที่ 26 มี.ค. 2570", slot: "12:00-14:00", codes: ["01003112", "01009102", "01101281"] },
+        { date: "2027-03-26", label: "ศุกร์ที่ 26 มี.ค. 2570", slot: "14:30-16:30", codes: ["01371111:ภาควิชาจัดสอบเอง"] }
+      ]
+    };
+
+    // Tier 2 Fallback: Official 2568 Exam Schedule (for courses missing in 2569 draft)
+    const EXAM_DB_2568 = {
+      midterm: [
+        { date: "2026-01-14", label: "พุธ (อิงปี 68)", slot: "14:30-16:30", codes: ["01204161"] },
+        { date: "2026-01-16", label: "ศุกร์ (อิงปี 68)", slot: "14:30-17:00", codes: ["01403111"] }
+      ],
+      final: [
+        { date: "2026-03-16", label: "จันทร์ (อิงปี 68)", slot: "14:30-16:30", codes: ["01355103"] },
+        { date: "2026-03-20", label: "ศุกร์ (อิงปี 68)", slot: "14:30-16:30", codes: ["01403227"] },
+        { date: "2026-03-26", label: "พฤหัสบดี (อิงปี 68)", slot: "12:00-14:00", codes: ["01132231"] }
+      ]
+    };
+
+    // Lookup all matching exam slots for a course code across Tier 1 (2569) -> Tier 2 (2568) -> Tier 3 (Self-arranged)
+    function lookupExamEntries(courseCode, examType) {
+      const clean = (courseCode || "").trim().slice(0, 8);
+      const matches2569 = [];
+
+      for (const row of EXAM_DB_2569[examType]) {
+        for (const item of row.codes) {
+          const [c, note] = item.split(":");
+          if (c === clean) {
+            matches2569.push({
+              source: "2569",
+              date: row.date,
+              label: row.label,
+              slot: row.slot,
+              note: note || ""
+            });
+          }
+        }
+      }
+      if (matches2569.length > 0) return matches2569;
+
+      const matches2568 = [];
+      for (const row of EXAM_DB_2568[examType]) {
+        for (const item of row.codes) {
+          const [c, note] = item.split(":");
+          if (c === clean) {
+            matches2568.push({
+              source: "2568",
+              date: row.date,
+              label: row.label,
+              slot: row.slot,
+              note: note || ""
+            });
+          }
+        }
+      }
+      if (matches2568.length > 0) return matches2568;
+
+      return [{
+        source: "SELF",
+        date: "",
+        label: "รายวิชาจัดสอบเอง / สอบในคาบ / ไม่มีสอบ",
+        slot: "",
+        note: ""
+      }];
+    }
+
+    // =========================================================================
+    // 3. DEFAULT STARTER COURSES (FROM USER'S REAL MY.KU.TH PDFS)
+    // =========================================================================
+    const DEFAULT_COURSES = [
+      {
+        id: "course_01999031",
+        code: "01999031",
+        nameTh: "มรดกอารยธรรมโลก",
+        nameEn: "The Heritage of World Civilizations",
+        credits: 3,
+        category: "ศึกษาทั่วไป",
+        subGroup: "พลเมืองไทยและพลเมืองโลก",
+        selectedSection: "1",
+        sections: [
+          {
+            sec: "1",
+            type: "บรรยาย (ปกติ)",
+            room: "LH 3-403",
+            meetings: [
+              { day: "TUE", start: "09:30", end: "11:00", room: "LH 3-403" },
+              { day: "THU", start: "09:30", end: "11:00", room: "LH 3-403" }
+            ]
+          },
+          {
+            sec: "2",
+            type: "บรรยาย (ปกติ)",
+            room: "LH 3-303",
+            meetings: [
+              { day: "TUE", start: "12:30", end: "14:00", room: "LH 3-303" },
+              { day: "THU", start: "12:30", end: "14:00", room: "LH 3-303" }
+            ]
+          },
+          {
+            sec: "300",
+            type: "บรรยาย (พิเศษ)",
+            room: "LH 3-303",
+            meetings: [
+              { day: "THU", start: "16:00", end: "19:00", room: "LH 3-303" }
+            ]
+          }
+        ],
+        customExam: null
+      },
+      {
+        id: "course_01362102",
+        code: "01362102",
+        nameTh: "ภาษาจีน II",
+        nameEn: "Chinese II",
+        credits: 3,
+        category: "ศึกษาทั่วไป",
+        subGroup: "ภาษากับการสื่อสาร (จีน)",
+        selectedSection: "1",
+        sections: [
+          {
+            sec: "1",
+            type: "บรรยาย (ปกติ)",
+            room: "HUM4-409",
+            meetings: [
+              { day: "MON", start: "09:30", end: "11:00", room: "HUM4-409" },
+              { day: "FRI", start: "09:30", end: "11:00", room: "HUM4-409" }
+            ]
+          },
+          {
+            sec: "2",
+            type: "บรรยาย (ปกติ)",
+            room: "HUM4-409",
+            meetings: [
+              { day: "MON", start: "11:00", end: "12:30", room: "HUM4-409" },
+              { day: "FRI", start: "11:00", end: "12:30", room: "HUM4-409" }
+            ]
+          },
+          {
+            sec: "3",
+            type: "บรรยาย (ปกติ)",
+            room: "LH2-207",
+            meetings: [
+              { day: "WED", start: "09:00", end: "12:00", room: "LH2-207" }
+            ]
+          },
+          {
+            sec: "180",
+            type: "บรรยาย (พิเศษ)",
+            room: "LH 2-303",
+            meetings: [
+              { day: "MON", start: "13:00", end: "14:30", room: "LH 2-303" },
+              { day: "FRI", start: "13:00", end: "14:30", room: "LH 2-303" }
+            ]
+          },
+          {
+            sec: "420",
+            type: "บรรยาย (พิเศษ นานาชาติ)",
+            room: "ติดต่อผู้สอน",
+            meetings: [
+              { day: "MON", start: "09:00", end: "12:00", room: "ติดต่อผู้สอน" }
+            ]
+          },
+          {
+            sec: "445",
+            type: "บรรยาย (พิเศษ นานาชาติ)",
+            room: "ติดต่อผู้สอน",
+            meetings: [
+              { day: "MON", start: "13:00", end: "16:00", room: "ติดต่อผู้สอน" }
+            ]
+          },
+          {
+            sec: "446",
+            type: "บรรยาย (พิเศษ นานาชาติ)",
+            room: "ติดต่อผู้สอน",
+            meetings: [
+              { day: "MON", start: "16:00", end: "19:00", room: "ติดต่อผู้สอน" }
+            ]
+          }
+        ],
+        customExam: null
+      },
+      {
+        id: "course_01387105",
+        code: "01387105",
+        nameTh: "พุทธจริยศาสตร์ในการดำเนินธุรกิจ",
+        nameEn: "Buddhist Ethics of Business Operations",
+        credits: 3,
+        category: "ศึกษาทั่วไป",
+        subGroup: "ศาสตร์แห่งผู้ประกอบการ",
+        selectedSection: "1",
+        sections: [
+          {
+            sec: "1",
+            type: "บรรยาย (ปกติ)",
+            room: "ศร.3-304",
+            meetings: [
+              { day: "WED", start: "09:00", end: "12:00", room: "ศร.3-304" }
+            ]
+          }
+        ],
+        customExam: null
+      }
+    ];
+
+    // =========================================================================
+    // 4. 4-LAYER BULLETPROOF PERSISTENT STORAGE
+    //    Priority: URL Hash -> window.name -> localStorage -> IndexedDB -> Default
+    // =========================================================================
+    const STORAGE_KEY = "ku_planner_phil_2569_v4";
+    const IDB_NAME = "KUPlannerDB_2569_v4";
+    const IDB_STORE = "plannerState";
+    let courses = [];
+    let currentCategoryFilter = "ALL";
+
+    function encodeStateToBase64(dataObj) {
+      try {
+        const json = JSON.stringify(dataObj);
+        return btoa(unescape(encodeURIComponent(json)));
+      } catch (e) {
+        return "";
+      }
+    }
+
+    function decodeStateFromBase64(b64) {
+      try {
+        const json = decodeURIComponent(escape(atob(b64)));
+        return JSON.parse(json);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function openIDB() {
+      return new Promise((resolve, reject) => {
+        if (!window.indexedDB) return reject(new Error("IndexedDB unavailable"));
+        try {
+          const req = window.indexedDB.open(IDB_NAME, 1);
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(IDB_STORE)) {
+              db.createObjectStore(IDB_STORE);
+            }
+          };
+          req.onsuccess = (e) => resolve(e.target.result);
+          req.onerror = (e) => reject(e.target.error);
+        } catch (err) {
+          reject(err);
+        }
+      });
+    }
+
+    async function saveToIDB(data) {
+      try {
+        const db = await openIDB();
+        return new Promise((resolve) => {
+          const tx = db.transaction(IDB_STORE, "readwrite");
+          tx.objectStore(IDB_STORE).put(data, STORAGE_KEY);
+          tx.oncomplete = () => resolve(true);
+          tx.onerror = () => resolve(false);
+        });
+      } catch (e) {
+        return false;
+      }
+    }
+
+    async function loadFromIDB() {
+      try {
+        const db = await openIDB();
+        return new Promise((resolve) => {
+          const tx = db.transaction(IDB_STORE, "readonly");
+          const req = tx.objectStore(IDB_STORE).get(STORAGE_KEY);
+          req.onsuccess = () => resolve(req.result || null);
+          req.onerror = () => resolve(null);
+        });
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function updateUrlHashSilently(data) {
+      try {
+        const b64 = encodeStateToBase64(data);
+        if (!b64) return;
+        const hashStr = "#data=" + b64;
+        if (window.history && typeof window.history.replaceState === "function") {
+          window.history.replaceState(null, "", hashStr);
+        } else {
+          window.location.hash = hashStr;
+        }
+      } catch (e) {
+        try {
+          const b64 = encodeStateToBase64(data);
+          if (b64) window.location.hash = "#data=" + b64;
+        } catch (err) {}
+      }
+    }
+
+    function updateSaveBadge(msg) {
+      const el = document.getElementById("save-status-badge");
+      if (el) {
+        el.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span><span>${msg}</span>`;
+      }
+    }
+
+    async function loadState() {
+      // Layer 1: URL Hash (#data=... or #state=...)
+      try {
+        const h = window.location.hash || "";
+        if (h.startsWith("#data=") || h.startsWith("#state=")) {
+          const b64 = h.replace(/^#(data|state)=/, "");
+          const decoded = decodeStateFromBase64(b64);
+          if (Array.isArray(decoded) && decoded.length > 0) {
+            courses = decoded;
+            await saveState(false);
+            updateSaveBadge("กู้คืนจากลิงก์และบันทึกอัตโนมัติแล้ว");
+            return;
+          }
+        }
+      } catch (e) {}
+
+      // Layer 2: window.name (Survives F5 refresh even inside sandboxed iframes/Google Sites!)
+      try {
+        if (window.name && window.name.startsWith("KU_PLANNER_V4:")) {
+          const parsed = JSON.parse(window.name.slice(14));
+          if (Array.isArray(parsed)) {
+            courses = parsed;
+            await saveState(true);
+            updateSaveBadge("บันทึกอัตโนมัติแล้ว (รีเฟรชไม่หาย)");
+            return;
+          }
+        }
+      } catch (e) {}
+
+      // Layer 3: localStorage
+      try {
+        const saved = window.localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            courses = parsed;
+            await saveState(true);
+            updateSaveBadge("บันทึกอัตโนมัติแล้ว (รีเฟรชไม่หาย)");
+            return;
+          }
+        }
+      } catch (e) {}
+
+      // Layer 4: IndexedDB
+      const idbData = await loadFromIDB();
+      if (Array.isArray(idbData)) {
+        courses = idbData;
+        await saveState(true);
+        updateSaveBadge("บันทึกอัตโนมัติแล้ว (รีเฟรชไม่หาย)");
+        return;
+      }
+
+      // First visit: load 3 starter courses
+      courses = JSON.parse(JSON.stringify(DEFAULT_COURSES));
+      await saveState(true);
+      updateSaveBadge("บันทึกอัตโนมัติแล้ว (รีเฟรชไม่หาย)");
+    }
+
+    async function saveState(syncHash = true) {
+      const serialized = JSON.stringify(courses);
+
+      // 1. window.name
+      try {
+        window.name = "KU_PLANNER_V4:" + serialized;
+      } catch (e) {}
+
+      // 2. localStorage
+      try {
+        window.localStorage.setItem(STORAGE_KEY, serialized);
+      } catch (e) {}
+
+      // 3. URL Hash
+      if (syncHash) {
+        updateUrlHashSilently(courses);
+      }
+
+      // 4. IndexedDB
+      await saveToIDB(courses);
+      updateSaveBadge("บันทึกอัตโนมัติแล้ว (รีเฟรชไม่หาย)");
+    }
+
+    function copyShareLink() {
+      const b64 = encodeStateToBase64(courses);
+      const baseUrl = window.location.href.split("#")[0];
+      const shareUrl = `${baseUrl}#data=${b64}`;
+      updateUrlHashSilently(courses);
+
+      const temp = document.createElement("textarea");
+      temp.value = shareUrl;
+      document.body.appendChild(temp);
+      temp.select();
+      try {
+        document.execCommand("copy");
+        showToast("คัดลอกลิงก์ที่มีข้อมูลตารางเรียนของคุณแล้ว! เปิดลิงก์นี้เมื่อไหร่ข้อมูลก็อยู่ครบ");
+      } catch (e) {
+        showToast("อัปเดตลิงก์บนแถบ URL เรียบร้อย สามารถคัดลอกจากด้านบนได้เลย", "warning");
+      }
+      temp.remove();
+    }
+
+    // =========================================================================
+    // 5. TIME UTILITIES & CONFLICT DETECTION ENGINE
+    // =========================================================================
+    const DAYS = [
+      { key: "MON", th: "จันทร์" },
+      { key: "TUE", th: "อังคาร" },
+      { key: "WED", th: "พุธ" },
+      { key: "THU", th: "พฤหัสบดี" },
+      { key: "FRI", th: "ศุกร์" },
+      { key: "SAT", th: "เสาร์" },
+      { key: "SUN", th: "อาทิตย์" }
+    ];
+
+    const COURSE_PALETTE = [
+      { bg: "bg-teal-50", border: "border-teal-500", text: "text-teal-900", badge: "bg-teal-600 text-white" },
+      { bg: "bg-sky-50", border: "border-sky-500", text: "text-sky-900", badge: "bg-sky-600 text-white" },
+      { bg: "bg-indigo-50", border: "border-indigo-500", text: "text-indigo-900", badge: "bg-indigo-600 text-white" },
+      { bg: "bg-amber-50", border: "border-amber-500", text: "text-amber-900", badge: "bg-amber-600 text-white" },
+      { bg: "bg-emerald-50", border: "border-emerald-500", text: "text-emerald-900", badge: "bg-emerald-600 text-white" },
+      { bg: "bg-purple-50", border: "border-purple-500", text: "text-purple-900", badge: "bg-purple-600 text-white" },
+      { bg: "bg-cyan-50", border: "border-cyan-500", text: "text-cyan-900", badge: "bg-cyan-600 text-white" }
+    ];
+
+    function timeToMinutes(t) {
+      if (!t) return 0;
+      const [h, m] = t.split(":").map(Number);
+      return h * 60 + (m || 0);
+    }
+
+    function formatThaiDateShort(isoDate) {
+      if (!isoDate) return "";
+      const months = ["", "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+      const daysTh = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
+      const parts = isoDate.split("-").map(Number);
+      if (parts.length !== 3) return isoDate;
+      const d = new Date(parts[0], parts[1] - 1, parts[2]);
+      const dayName = daysTh[d.getDay()];
+      const thaiYear = parts[0] + 543;
+      return `${dayName}ที่ ${parts[2]} ${months[parts[1]]} ${thaiYear}`;
+    }
+
+    function getEffectiveExams(course) {
+      if (course.customExam) {
+        return {
+          midterm: course.customExam.midterm,
+          final: course.customExam.final
+        };
+      }
+      return {
+        midterm: lookupExamEntries(course.code, "midterm"),
+        final: lookupExamEntries(course.code, "final")
+      };
+    }
+
+    function analyzeConflicts() {
+      const activeEvents = [];
+      courses.forEach((c, idx) => {
+        const secObj = c.sections.find(s => s.sec === c.selectedSection);
+        if (!secObj) return;
+        secObj.meetings.forEach(m => {
+          activeEvents.push({
+            courseId: c.id,
+            code: c.code,
+            nameTh: c.nameTh,
+            sec: secObj.sec,
+            day: m.day,
+            start: m.start,
+            end: m.end,
+            startMin: timeToMinutes(m.start),
+            endMin: timeToMinutes(m.end),
+            room: m.room,
+            palette: COURSE_PALETTE[idx % COURSE_PALETTE.length]
+          });
+        });
+      });
+
+      const classConflicts = [];
+      const conflictingCourseIds = new Set();
+
+      for (let i = 0; i < activeEvents.length; i++) {
+        for (let j = i + 1; j < activeEvents.length; j++) {
+          const a = activeEvents[i];
+          const b = activeEvents[j];
+          if (a.courseId === b.courseId) continue;
+          if (a.day === b.day && a.startMin < b.endMin && b.startMin < a.endMin) {
+            conflictingCourseIds.add(a.courseId);
+            conflictingCourseIds.add(b.courseId);
+            const dayTh = DAYS.find(d => d.key === a.day)?.th || a.day;
+            const msg = `เรียนทับกันวัน${dayTh}: ${a.code} (หมู่ ${a.sec} เวลา ${a.start}-${a.end}) ทับกับ ${b.code} (หมู่ ${b.sec} เวลา ${b.start}-${b.end})`;
+            if (!classConflicts.includes(msg)) classConflicts.push(msg);
+          }
+        }
+      }
+
+      // Exam Conflict & Same-Day Warning Detection
+      const examSlotBuckets = {}; // key: "midterm|2027-01-10|12:00-14:00"
+      const examDayBuckets = {};  // key: "midterm|2027-01-10"
+
+      courses.forEach(c => {
+        if (!c.selectedSection) return;
+        const ex = getEffectiveExams(c);
+        ["midterm", "final"].forEach(type => {
+          const typeLabel = type === "midterm" ? "กลางภาค" : "ปลายภาค";
+          ex[type].forEach(entry => {
+            if (!entry.date || !entry.slot || entry.source === "SELF" || entry.source === "NONE") return;
+            const slotKey = `${type}|${entry.date}|${entry.slot}`;
+            const dayKey = `${type}|${entry.date}`;
+            if (!examSlotBuckets[slotKey]) examSlotBuckets[slotKey] = [];
+            if (!examSlotBuckets[slotKey].some(x => x.code === c.code)) {
+              examSlotBuckets[slotKey].push({ code: c.code, nameTh: c.nameTh, label: entry.label, slot: entry.slot, typeLabel });
+            }
+            if (!examDayBuckets[dayKey]) examDayBuckets[dayKey] = [];
+            if (!examDayBuckets[dayKey].some(x => x.code === c.code && x.slot === entry.slot)) {
+              examDayBuckets[dayKey].push({ code: c.code, nameTh: c.nameTh, label: entry.label, slot: entry.slot, typeLabel });
+            }
+          });
+        });
+      });
+
+      const examConflicts = [];
+      const examConflictCodes = new Set();
+      Object.values(examSlotBuckets).forEach(list => {
+        if (list.length > 1) {
+          list.forEach(item => examConflictCodes.add(item.code));
+          const names = list.map(x => `${x.code} (${x.nameTh})`).join(" ชนกับ ");
+          examConflicts.push(`สอบ${list[0].typeLabel}ชนกัน (${list[0].label} เวลา ${list[0].slot} น.): ${names}`);
+        }
+      });
+
+      const sameDayWarnings = [];
+      Object.entries(examDayBuckets).forEach(([dayKey, list]) => {
+        const uniqueCodes = new Set(list.map(x => x.code));
+        if (uniqueCodes.size > 1) {
+          // Only warn if not already reported as an exact time collision
+          const uniqueSlots = new Set(list.map(x => x.slot));
+          if (uniqueSlots.size > 1) {
+            const detail = list.map(x => `${x.code} (${x.slot})`).join(" และ ");
+            sameDayWarnings.push(`สอบ${list[0].typeLabel}วันเดียวกัน (${list[0].label}): ${detail}`);
+          }
+        }
+      });
+
+      return {
+        activeEvents,
+        classConflicts,
+        conflictingCourseIds,
+        examConflicts,
+        examConflictCodes,
+        sameDayWarnings
+      };
+    }
+
+    // =========================================================================
+    // 6. UI RENDERING FUNCTIONS
+    // =========================================================================
+    function renderAll() {
+      const analysis = analyzeConflicts();
+      renderConflictBanner(analysis);
+      renderCategoryTabs();
+      renderCourseList(analysis);
+      renderTimetable(analysis);
+      renderExamSummaryTable(analysis);
+    }
+
+    function renderConflictBanner(analysis) {
+      const banner = document.getElementById("conflict-banner");
+      const activeCourses = courses.filter(c => c.selectedSection);
+      const totalCredits = activeCourses.reduce((sum, c) => sum + (Number(c.credits) || 0), 0);
+      document.getElementById("total-credits-display").textContent = `${totalCredits} หน่วยกิต`;
+      document.getElementById("course-count-badge").textContent = `${courses.length} วิชา`;
+
+      const hasRed = analysis.classConflicts.length > 0 || analysis.examConflicts.length > 0;
+      const hasAmber = analysis.sameDayWarnings.length > 0;
+
+      if (hasRed) {
+        banner.className = "rounded-2xl border border-rose-300 bg-rose-50 p-4 shadow-xs text-rose-950";
+        const items = [...analysis.classConflicts, ...analysis.examConflicts]
+          .map(msg => `<li class="flex items-start gap-2"><span class="font-bold text-rose-600">•</span><span>${msg}</span></li>`)
+          .join("");
+        const amberExtra = hasAmber
+          ? `<div class="mt-2 pt-2 border-t border-rose-200 text-xs text-amber-900"><strong>ข้อควรระวังเพิ่มเติม:</strong> ${analysis.sameDayWarnings.join(" | ")}</div>`
+          : "";
+        banner.innerHTML = `
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0 mt-0.5">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+            <div class="flex-1">
+              <div class="font-bold text-sm sm:text-base text-rose-800">พบปัญหาเวลาเรียนทับกัน หรือ วันสอบชนกัน!</div>
+              <ul class="mt-1.5 space-y-1 text-xs sm:text-sm text-rose-900">${items}</ul>
+              ${amberExtra}
+            </div>
+          </div>
+        `;
+      } else if (hasAmber) {
+        banner.className = "rounded-2xl border border-amber-300 bg-amber-50 p-4 shadow-xs text-amber-950";
+        const warnings = analysis.sameDayWarnings
+          .map(msg => `<li>• ${msg}</li>`)
+          .join("");
+        banner.innerHTML = `
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div class="flex-1">
+              <div class="font-bold text-sm sm:text-base text-amber-900">เวลาเรียนและเวลาสอบไม่ชนกัน (ลงทะเบียนรวม ${totalCredits} หน่วยกิต) — แต่มีสอบหลายวิชาในวันเดียวกัน</div>
+              <ul class="mt-1 space-y-0.5 text-xs sm:text-sm text-amber-800">${warnings}</ul>
+            </div>
+          </div>
+        `;
+      } else {
+        banner.className = "rounded-2xl border border-emerald-300 bg-emerald-50 p-4 shadow-xs text-emerald-950";
+        banner.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div>
+              <div class="font-bold text-sm sm:text-base text-emerald-900">ตารางเรียนและตารางสอบสมบูรณ์ ไม่มีคาบเรียนทับหรือสอบชนกัน</div>
+              <div class="text-xs text-emerald-700 mt-0.5">ลงทะเบียนที่เลือกไว้ทั้งหมด <strong>${activeCourses.length} วิชา (${totalCredits} หน่วยกิต)</strong> • ระบบบันทึกข้อมูลอัตโนมัติในเบราว์เซอร์แล้ว</div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function renderCategoryTabs() {
+      const categories = ["ALL", "วิชาเฉพาะบังคับ", "วิชาเฉพาะเลือก", "ศึกษาทั่วไป", "วิชาเลือกเสรี"];
+      const container = document.getElementById("category-tabs");
+      container.innerHTML = categories.map(cat => {
+        const count = cat === "ALL" ? courses.length : courses.filter(c => c.category === cat).length;
+        const label = cat === "ALL" ? `ทั้งหมด (${count})` : `${cat} (${count})`;
+        const active = currentCategoryFilter === cat;
+        const cls = active
+          ? "bg-ku-primary text-white font-semibold shadow-2xs"
+          : "bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium";
+        return `<button onclick="setCategoryFilter('${cat}')" class="px-2.5 py-1 rounded-lg text-xs transition cursor-pointer">${label}</button>`;
+      }).join("");
+    }
+
+    function setCategoryFilter(cat) {
+      currentCategoryFilter = cat;
+      renderCategoryTabs();
+      renderCourseList(analyzeConflicts());
+    }
+
+    function renderCourseList(analysis) {
+      const container = document.getElementById("course-list");
+      const filtered = currentCategoryFilter === "ALL"
+        ? courses
+        : courses.filter(c => c.category === currentCategoryFilter);
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-10 text-slate-400 text-sm space-y-1.5">
+            <p>ไม่มีรายวิชาในหมวดหมู่ "${currentCategoryFilter}"</p>
+            <p class="text-xs">กดปุ่ม <strong>"+ เพิ่มวิชาจาก my.ku.th"</strong> ด้านบนเพื่อเพิ่มวิชาจริงของคุณ</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(c => {
+        const idx = courses.findIndex(item => item.id === c.id);
+        const palette = COURSE_PALETTE[idx % COURSE_PALETTE.length];
+        const isClassConflict = analysis.conflictingCourseIds.has(c.id);
+        const isExamConflict = analysis.examConflictCodes.has(c.code);
+        const exams = getEffectiveExams(c);
+
+        const cardBorder = (isClassConflict || isExamConflict)
+          ? "border-rose-400 ring-1 ring-rose-300 bg-rose-50/20"
+          : "border-slate-200 bg-white";
+
+        // Category badge color
+        let catBadgeCls = "bg-slate-100 text-slate-700";
+        if (c.category === "วิชาเฉพาะบังคับ") catBadgeCls = "bg-emerald-100 text-emerald-800";
+        else if (c.category === "วิชาเฉพาะเลือก") catBadgeCls = "bg-teal-100 text-teal-800";
+        else if (c.category === "ศึกษาทั่วไป") catBadgeCls = "bg-sky-100 text-sky-800";
+        else if (c.category === "วิชาเลือกเสรี") catBadgeCls = "bg-amber-100 text-amber-800";
+
+        // Section selector options
+        const sectionOptions = c.sections.map(s => {
+          const timeDesc = s.meetings.map(m => {
+            const dTh = DAYS.find(d => d.key === m.day)?.th || m.day;
+            return `${dTh} ${m.start}-${m.end}`;
+          }).join(", ");
+          const selected = c.selectedSection === s.sec ? "selected" : "";
+          return `<option value="${s.sec}" ${selected}>หมู่ ${s.sec} (${s.type}) : ${timeDesc} [${s.room}]</option>`;
+        }).join("");
+
+        // Format exam badges
+        const renderExamMini = (entries, title) => {
+          return entries.map(e => {
+            if (e.source === "2569") {
+              return `<div class="text-[11px] text-slate-700"><span class="font-semibold text-ku-primary">${title}:</span> ${e.label} (${e.slot} น.) ${e.note ? `<span class="text-indigo-600 font-medium">[${e.note}]</span>` : ""}</div>`;
+            } else if (e.source === "2568") {
+              return `<div class="text-[11px] text-amber-800 bg-amber-50 border border-amber-200 rounded px-1.5 py-0.5 mt-0.5"><span class="font-semibold">${title}:</span> ${e.label} (${e.slot} น.) — <span class="font-bold">อิงตามปี 68 อาจมีการเปลี่ยนแปลง</span></div>`;
+            } else {
+              return `<div class="text-[11px] text-slate-500"><span class="font-semibold">${title}:</span> ${e.label}</div>`;
+            }
+          }).join("");
+        };
+
+        return `
+          <div class="rounded-xl border ${cardBorder} p-3.5 shadow-2xs transition hover:shadow-sm space-y-2.5">
+            <!-- Top Row: Code, Badges & Delete -->
+            <div class="flex items-start justify-between gap-2">
+              <div class="space-y-1">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full ${palette.badge.split(' ')[0]} inline-block"></span>
+                  <span class="font-bold text-sm text-ku-dark tracking-tight">${c.code}</span>
+                  <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md ${catBadgeCls}">${c.category}</span>
+                  ${c.subGroup ? `<span class="text-[11px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">${c.subGroup}</span>` : ""}
+                  <span class="text-[11px] font-semibold text-slate-500">(${c.credits} หน่วยกิต)</span>
+                </div>
+                <div class="font-bold text-slate-800 text-sm leading-snug">${c.nameTh}</div>
+                ${c.nameEn ? `<div class="text-xs text-slate-500">${c.nameEn}</div>` : ""}
+              </div>
+
+              <div class="flex items-center gap-1 shrink-0">
+                <!-- Category quick override -->
+                <select onchange="changeCourseCategory('${c.id}', this.value)" title="เปลี่ยนหมวดหมู่วิชา" class="text-[11px] rounded-lg border border-slate-200 bg-slate-50 px-1.5 py-1 text-slate-600 outline-none cursor-pointer">
+                  <option value="วิชาเฉพาะบังคับ" ${c.category === "วิชาเฉพาะบังคับ" ? "selected" : ""}>เฉพาะบังคับ</option>
+                  <option value="วิชาเฉพาะเลือก" ${c.category === "วิชาเฉพาะเลือก" ? "selected" : ""}>เฉพาะเลือก</option>
+                  <option value="ศึกษาทั่วไป" ${c.category === "ศึกษาทั่วไป" ? "selected" : ""}>ศึกษาทั่วไป</option>
+                  <option value="วิชาเลือกเสรี" ${c.category === "วิชาเลือกเสรี" ? "selected" : ""}>เลือกเสรี</option>
+                </select>
+                <button onclick="removeCourse('${c.id}')" title="ลบรายวิชานี้" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Section Dropdown Selector -->
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">เลือกหมู่เรียน (เปิดสอน ${c.sections.length} หมู่):</label>
+              <select onchange="selectSection('${c.id}', this.value)" class="w-full rounded-xl border ${isClassConflict ? "border-rose-400 bg-rose-50 text-rose-900" : "border-slate-300 bg-slate-50 text-slate-800"} px-3 py-2 text-xs font-medium outline-none focus:border-ku-primary cursor-pointer">
+                <option value="">-- ยังไม่เลือกหมู่เรียน (ไม่แสดงในตาราง) --</option>
+                ${sectionOptions}
+              </select>
+            </div>
+
+            <!-- Exam Info Box -->
+            <div class="bg-slate-50/90 rounded-lg p-2.5 border border-slate-100 flex items-start justify-between gap-2">
+              <div class="space-y-0.5 flex-1">
+                ${renderExamMini(exams.midterm, "กลางภาค")}
+                ${renderExamMini(exams.final, "ปลายภาค")}
+              </div>
+              <button onclick="openExamModal('${c.id}')" class="text-[11px] font-semibold text-ku-primary hover:underline shrink-0 cursor-pointer">
+                แก้ไขวันสอบ
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderTimetable(analysis) {
+      const wrapper = document.getElementById("timetable-wrapper");
+      const startHour = 8;
+      const endHour = 21;
+      const totalHours = endHour - startHour; // 13 hours (08:00 to 21:00)
+
+      // Header row (Time axis)
+      let hourHeaders = "";
+      for (let h = startHour; h < endHour; h++) {
+        const label = `${String(h).padStart(2, "0")}:00`;
+        hourHeaders += `<div class="border-l border-slate-200 text-[11px] font-semibold text-slate-500 pl-1.5 py-1.5">${label}</div>`;
+      }
+
+      // Day rows
+      const dayRows = DAYS.map(dayObj => {
+        const events = analysis.activeEvents.filter(e => e.day === dayObj.key);
+        const blocksHtml = events.map(ev => {
+          const clampedStart = Math.max(startHour * 60, ev.startMin);
+          const clampedEnd = Math.min(endHour * 60, ev.endMin);
+          if (clampedEnd <= clampedStart) return "";
+
+          const leftPct = ((clampedStart - startHour * 60) / (totalHours * 60)) * 100;
+          const widthPct = ((clampedEnd - clampedStart) / (totalHours * 60)) * 100;
+
+          // Check if this specific event overlaps another event on the same day
+          const overlaps = events.some(other =>
+            other !== ev && ev.startMin < other.endMin && other.startMin < ev.endMin
+          );
+
+          const blockStyle = overlaps
+            ? "bg-rose-100 border-rose-600 text-rose-950 ring-1 ring-rose-500 z-20"
+            : `${ev.palette.bg} ${ev.palette.border} ${ev.palette.text} z-10`;
+
+          return `
+            <div style="left: ${leftPct}%; width: ${widthPct}%;"
+                 title="${ev.code} ${ev.nameTh} (หมู่ ${ev.sec}) | ${ev.start}-${ev.end} | ห้อง ${ev.room}"
+                 class="absolute top-1 bottom-1 rounded-lg border-l-4 px-2 py-1 shadow-2xs overflow-hidden flex flex-col justify-center transition-all ${blockStyle}">
+              <div class="flex items-center justify-between gap-1 leading-none">
+                <span class="font-bold text-[11px] truncate">${ev.code}</span>
+                <span class="text-[10px] font-semibold opacity-80 shrink-0">หมู่ ${ev.sec}</span>
+              </div>
+              <div class="text-[10px] font-medium truncate mt-0.5 leading-tight">${ev.nameTh}</div>
+              <div class="text-[9px] opacity-75 truncate leading-tight">${ev.start}-${ev.end} • ${ev.room}</div>
+            </div>
+          `;
+        }).join("");
+
+        // Background vertical grid lines
+        let gridCols = "";
+        for (let h = 0; h < totalHours; h++) {
+          gridCols += `<div class="border-l border-slate-100 h-full"></div>`;
+        }
+
+        return `
+          <div class="grid grid-cols-[84px_1fr] border-t border-slate-200 min-h-[62px]">
+            <div class="bg-slate-50 px-2.5 py-2 flex items-center justify-center font-bold text-xs text-slate-700 border-r border-slate-200">
+              ${dayObj.th}
+            </div>
+            <div class="relative bg-white">
+              <div class="grid grid-cols-13 h-full absolute inset-0 pointer-events-none" style="grid-template-columns: repeat(${totalHours}, minmax(0, 1fr));">
+                ${gridCols}
+              </div>
+              ${blocksHtml}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      wrapper.innerHTML = `
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <div class="grid grid-cols-[84px_1fr] bg-slate-100">
+            <div class="px-2.5 py-1.5 text-center text-[11px] font-bold text-slate-600 border-r border-slate-200">วัน / เวลา</div>
+            <div class="grid" style="grid-template-columns: repeat(${totalHours}, minmax(0, 1fr));">
+              ${hourHeaders}
+            </div>
+          </div>
+          ${dayRows}
+        </div>
+      `;
+    }
+
+    function renderExamSummaryTable(analysis) {
+      const tbody = document.getElementById("exam-summary-tbody");
+      if (courses.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400 text-xs">ยังไม่มีรายวิชาในตาราง</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = courses.map(c => {
+        const exams = getEffectiveExams(c);
+        const isConflict = analysis.examConflictCodes.has(c.code);
+        const rowBg = isConflict ? "bg-rose-50/70" : "hover:bg-slate-50/80";
+
+        const formatCell = (entries) => {
+          return entries.map(e => {
+            if (e.source === "2569") {
+              return `
+                <div class="text-xs font-medium text-slate-800">${e.label}</div>
+                <div class="text-[11px] text-ku-primary font-semibold">${e.slot} น. ${e.note ? `<span class="text-indigo-600">(${e.note})</span>` : ""}</div>
+              `;
+            } else if (e.source === "2568") {
+              return `
+                <div class="text-xs font-medium text-amber-900">${e.label} (${e.slot} น.)</div>
+                <span class="inline-block text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 px-1.5 py-0.5 rounded mt-0.5">อิงตามปี 68 (อาจเปลี่ยนแปลง)</span>
+              `;
+            } else {
+              return `<span class="inline-block text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">${e.label}</span>`;
+            }
+          }).join('<div class="my-1 border-t border-slate-100"></div>');
+        };
+
+        return `
+          <tr class="${rowBg} transition">
+            <td class="py-3 px-3.5">
+              <div class="font-bold text-slate-800 text-xs sm:text-sm">${c.code}</div>
+              <div class="text-xs text-slate-600">${c.nameTh}</div>
+            </td>
+            <td class="py-3 px-3 text-center">
+              ${c.selectedSection
+                ? `<span class="inline-block px-2 py-0.5 rounded-md bg-ku-light text-ku-primary font-bold text-xs">หมู่ ${c.selectedSection}</span>`
+                : `<span class="text-[11px] text-slate-400">ยังไม่เลือก</span>`}
+            </td>
+            <td class="py-3 px-3">${formatCell(exams.midterm)}</td>
+            <td class="py-3 px-3">${formatCell(exams.final)}</td>
+            <td class="py-3 px-3 text-right">
+              <button onclick="openExamModal('${c.id}')" class="px-2.5 py-1 rounded-lg border border-slate-200 hover:border-ku-primary hover:text-ku-primary text-xs font-medium text-slate-600 transition cursor-pointer">
+                แก้ไข
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    // =========================================================================
+    // 7. COURSE ACTIONS (SELECT SECTION, CATEGORY OVERRIDE, REMOVE)
+    // =========================================================================
+    function selectSection(courseId, sec) {
+      const course = courses.find(c => c.id === courseId);
+      if (course) {
+        course.selectedSection = sec;
+        saveState();
+        renderAll();
+      }
+    }
+
+    function changeCourseCategory(courseId, newCat) {
+      const course = courses.find(c => c.id === courseId);
+      if (course) {
+        course.category = newCat;
+        saveState();
+        renderAll();
+        showToast(`เปลี่ยนหมวดหมู่วิชา ${course.code} เป็น "${newCat}" แล้ว`);
+      }
+    }
+
+    function removeCourse(courseId) {
+      const course = courses.find(c => c.id === courseId);
+      if (!course) return;
+      openConfirmModal(
+        "ลบรายวิชา",
+        `ต้องการลบวิชา ${course.code} (${course.nameTh}) ออกจากแผนการเรียนใช่หรือไม่?`,
+        () => {
+          courses = courses.filter(c => c.id !== courseId);
+          saveState();
+          renderAll();
+          showToast(`ลบวิชา ${course.code} เรียบร้อยแล้ว`);
+        }
+      );
+    }
+
+    // =========================================================================
+    // 8. SMART BULK PARSER FOR MY.KU.TH (MERGES LECTURE + LAB SECTIONS)
+    // =========================================================================
+    function parseAndAddCourse() {
+      const rawText = document.getElementById("parser-textarea").value;
+      if (!rawText || !rawText.trim()) {
+        showToast("กรุณาวางข้อความรายวิชาจาก my.ku.th ก่อนกดประมวลผล", "error");
+        return;
+      }
+
+      // Split text into blocks by 8-digit course codes (e.g., 01999031-67 or 01999031)
+      const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const courseBlocks = [];
+      let currentBlock = null;
+
+      const codeHeaderRegex = /^(\d{8})(?:-\d{2})?(?:\s+(.*))?$/;
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        // Ignore navigation/footer noise from my.ku.th
+        if (/^(รายวิชาที่เปิดให้ลงทะเบียน|ค้นหารายวิชา|วิทยาเขต|ปีการศึกษา|ภาคการศึกษา|รายชื่อวิชาที่เปิดสอนทั้งหมด|กลับหน้าหลัก|Download select|My KU|\d+\/\d+)$/i.test(line)) {
+          continue;
+        }
+
+        const m = line.match(codeHeaderRegex);
+        if (m) {
+          const code = m[1];
+          const rest = (m[2] || "").trim();
+          // Check if next line is "หมู่ X" -> this is a section header inside the same course
+          const nextLine = lines[i + 1] || "";
+          const isSectionSubHeader = /^หมู่\s*\d+/i.test(nextLine);
+
+          if (!currentBlock || (currentBlock.code !== code && !isSectionSubHeader)) {
+            if (currentBlock) courseBlocks.push(currentBlock);
+            currentBlock = {
+              code,
+              inlineTitle: rest,
+              lines: []
+            };
+          } else {
+            currentBlock.lines.push(line);
+          }
+        } else if (currentBlock) {
+          currentBlock.lines.push(line);
+        }
+      }
+      if (currentBlock) courseBlocks.push(currentBlock);
+
+      if (courseBlocks.length === 0) {
+        showToast("ไม่พบรหัสวิชา 8 หลักในข้อความ กรุณาคัดลอกตั้งแต่ส่วนรหัสวิชาจาก my.ku.th", "error");
+        return;
+      }
+
+      let addedCount = 0;
+
+      courseBlocks.forEach(block => {
+        const { code, inlineTitle, lines: bLines } = block;
+
+        // Extract Thai & English Course Names
+        let nameTh = "";
+        let nameEn = "";
+        let credits = 3;
+
+        if (inlineTitle) {
+          const enMatch = inlineTitle.match(/([A-Za-z][A-Za-z0-9\s,&:'\-().]+)$/);
+          if (enMatch && enMatch.index > 0) {
+            nameTh = inlineTitle.slice(0, enMatch.index).trim();
+            nameEn = enMatch[1].trim();
+          } else {
+            nameTh = inlineTitle;
+          }
+        }
+
+        // Scan lines before first "หมู่" for course names and credits
+        for (const l of bLines) {
+          const crMatch = l.match(/(\d+)\s*หน่วยกิต/);
+          if (crMatch) credits = parseInt(crMatch[1], 10);
+
+          if (/^หมู่\s*\d+/i.test(l)) break;
+          if (/^(จำนวนรับ|ลงทะเบียนแล้ว|ประเภทหมู่เรียน|สามารถเรียนทดแทน|บางเขน|ทั้งหมด)/.test(l)) continue;
+
+          if (!nameTh && /[\u0E00-\u0E7F]/.test(l)) {
+            nameTh = l.replace(/[()]/g, "").trim();
+          } else if (!nameEn && /^\(?[A-Za-z]/.test(l)) {
+            nameEn = l.replace(/[()]/g, "").trim();
+          }
+        }
+
+        if (!nameTh) nameTh = `รายวิชา ${code}`;
+
+        // Parse Sections & Merge Lecture + Lab under the same section number (Bug Fix 1)
+        const sectionMap = new Map();
+        let activeSec = null;
+
+        // Regex handles OCR quirks like ΜΟΝ (Greek Mu) or MON
+        const meetingRegex = /\b(MON|TUE|WED|THU|FRI|SAT|SUN|ΜΟΝ)\s+(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})(?:\s+ห้อง\s*(.+))?/i;
+
+        for (const l of bLines) {
+          const secMatch = l.match(/^หมู่\s*(\d+)\s*(?:\(([^)]*))?/i);
+          if (secMatch) {
+            const secNum = secMatch[1];
+            const rawKind = (secMatch[2] || "บรรยาย").replace(/\)/g, "").trim();
+
+            if (!sectionMap.has(secNum)) {
+              sectionMap.set(secNum, {
+                sec: secNum,
+                kinds: new Set([rawKind]),
+                typeMode: "ปกติ",
+                rooms: new Set(),
+                meetings: []
+              });
+            } else {
+              sectionMap.get(secNum).kinds.add(rawKind);
+            }
+            activeSec = sectionMap.get(secNum);
+            continue;
+          }
+
+          if (activeSec) {
+            const modeMatch = l.match(/ประเภทหมู่เรียน\s*:\s*(.+)/);
+            if (modeMatch) {
+              activeSec.typeMode = modeMatch[1].trim();
+            }
+
+            const meetMatch = l.match(meetingRegex);
+            if (meetMatch) {
+              let day = meetMatch[1].toUpperCase().replace("ΜΟΝ", "MON");
+              const start = meetMatch[2].padStart(5, "0");
+              const end = meetMatch[3].padStart(5, "0");
+              const room = (meetMatch[4] || "ไม่ระบุห้อง").trim();
+              activeSec.rooms.add(room);
+
+              // Avoid duplicate identical meeting slots
+              const dup = activeSec.meetings.some(m => m.day === day && m.start === start && m.end === end);
+              if (!dup) {
+                activeSec.meetings.push({ day, start, end, room });
+              }
+            }
+          }
+        }
+
+        const parsedSections = Array.from(sectionMap.values()).map(s => {
+          const kindStr = Array.from(s.kinds).join(" + ");
+          const roomStr = s.rooms.size > 0 ? Array.from(s.rooms).join(", ") : "ไม่ระบุห้อง";
+          return {
+            sec: s.sec,
+            type: `${kindStr} (${s.typeMode})`,
+            room: roomStr,
+            meetings: s.meetings
+          };
+        });
+
+        const classification = classifyCourseCode(code);
+        const existingIdx = courses.findIndex(c => c.code === code);
+
+        const newCourseObj = {
+          id: existingIdx >= 0 ? courses[existingIdx].id : `course_${code}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+          code,
+          nameTh,
+          nameEn,
+          credits,
+          category: classification.category,
+          subGroup: classification.subGroup,
+          selectedSection: parsedSections.length > 0 ? parsedSections[0].sec : "",
+          sections: parsedSections.length > 0 ? parsedSections : [{
+            sec: "1",
+            type: "บรรยาย (ปกติ)",
+            room: "ติดต่อผู้สอน",
+            meetings: []
+          }],
+          customExam: existingIdx >= 0 ? courses[existingIdx].customExam : null
+        };
+
+        if (existingIdx >= 0) {
+          courses[existingIdx] = newCourseObj;
+        } else {
+          courses.push(newCourseObj);
+        }
+        addedCount++;
+      });
+
+      saveState();
+      closeAddModal();
+      document.getElementById("parser-textarea").value = "";
+      renderAll();
+      showToast(`นำเข้าและบันทึกข้อมูลสำเร็จ ${addedCount} รายวิชา!`);
+    }
+
+    // =========================================================================
+    // 9. MANUAL ADD COURSE
+    // =========================================================================
+    function addManualSectionRow() {
+      const container = document.getElementById("manual-sections-container");
+      const row = document.createElement("div");
+      row.className = "grid grid-cols-2 sm:grid-cols-6 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 items-center";
+      row.innerHTML = `
+        <input type="text" placeholder="หมู่ (เช่น 1)" value="1" class="man-sec rounded-lg border border-slate-300 px-2 py-1.5 text-xs bg-white" />
+        <select class="man-day rounded-lg border border-slate-300 px-2 py-1.5 text-xs bg-white">
+          <option value="MON">จันทร์ (MON)</option>
+          <option value="TUE">อังคาร (TUE)</option>
+          <option value="WED">พุธ (WED)</option>
+          <option value="THU">พฤหัสบดี (THU)</option>
+          <option value="FRI">ศุกร์ (FRI)</option>
+          <option value="SAT">เสาร์ (SAT)</option>
+          <option value="SUN">อาทิตย์ (SUN)</option>
+        </select>
+        <input type="time" value="09:00" class="man-start rounded-lg border border-slate-300 px-2 py-1.5 text-xs bg-white" />
+        <input type="time" value="12:00" class="man-end rounded-lg border border-slate-300 px-2 py-1.5 text-xs bg-white" />
+        <input type="text" placeholder="ห้องเรียน" value="ศร.3-301" class="man-room rounded-lg border border-slate-300 px-2 py-1.5 text-xs bg-white" />
+        <button type="button" onclick="this.parentElement.remove()" class="text-xs text-rose-600 hover:underline font-semibold cursor-pointer">ลบแถว</button>
+      `;
+      container.appendChild(row);
+    }
+
+    function submitManualCourse() {
+      const code = document.getElementById("man-code").value.trim();
+      const credits = parseInt(document.getElementById("man-credits").value, 10) || 3;
+      const catChoice = document.getElementById("man-category").value;
+      const nameTh = document.getElementById("man-name-th").value.trim();
+      const nameEn = document.getElementById("man-name-en").value.trim();
+
+      if (!/^\d{8}$/.test(code) || !nameTh) {
+        showToast("กรุณากรอกรหัสวิชา 8 หลัก และชื่อวิชาภาษาไทยให้ครบถ้วน", "error");
+        return;
+      }
+
+      const secMap = new Map();
+      const rows = document.querySelectorAll("#manual-sections-container > div");
+      rows.forEach(r => {
+        const sec = r.querySelector(".man-sec").value.trim() || "1";
+        const day = r.querySelector(".man-day").value;
+        const start = r.querySelector(".man-start").value || "09:00";
+        const end = r.querySelector(".man-end").value || "12:00";
+        const room = r.querySelector(".man-room").value.trim() || "ไม่ระบุห้อง";
+
+        if (!secMap.has(sec)) {
+          secMap.set(sec, { sec, type: "บรรยาย (ปกติ)", room, meetings: [] });
+        }
+        secMap.get(sec).meetings.push({ day, start, end, room });
+      });
+
+      const sections = Array.from(secMap.values());
+      const autoClass = classifyCourseCode(code);
+      const finalCategory = catChoice === "AUTO" ? autoClass.category : catChoice;
+
+      const courseObj = {
+        id: `course_${code}_${Date.now()}`,
+        code,
+        nameTh,
+        nameEn,
+        credits,
+        category: finalCategory,
+        subGroup: autoClass.subGroup,
+        selectedSection: sections.length > 0 ? sections[0].sec : "",
+        sections,
+        customExam: null
+      };
+
+      const idx = courses.findIndex(c => c.code === code);
+      if (idx >= 0) courses[idx] = courseObj;
+      else courses.push(courseObj);
+
+      saveState();
+      closeAddModal();
+      renderAll();
+      showToast(`เพิ่มวิชา ${code} (${nameTh}) เรียบร้อยแล้ว`);
+    }
+
+    // =========================================================================
+    // 10. MODALS, STANDARDIZED EXAM EDITOR & EXPORT/IMPORT
+    // =========================================================================
+    function openAddModal(mode = "parser") {
+      const modal = document.getElementById("add-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+      switchModalTab(mode);
+      if (document.getElementById("manual-sections-container").children.length === 0) {
+        addManualSectionRow();
+      }
+    }
+
+    function closeAddModal() {
+      const modal = document.getElementById("add-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    function switchModalTab(mode) {
+      ["parser", "manual"].forEach(t => {
+        const btn = document.getElementById(`modal-tab-${t}`);
+        const body = document.getElementById(`modal-body-${t}`);
+        if (t === mode) {
+          btn.className = "px-3.5 py-2 text-xs sm:text-sm font-bold border-b-2 border-ku-primary text-ku-primary cursor-pointer";
+          body.classList.remove("hidden");
+        } else {
+          btn.className = "px-3.5 py-2 text-xs sm:text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 cursor-pointer";
+          body.classList.add("hidden");
+        }
+      });
+    }
+
+    function openExamModal(courseId) {
+      const c = courses.find(item => item.id === courseId);
+      if (!c) return;
+      document.getElementById("exam-edit-course-id").value = c.id;
+      document.getElementById("exam-modal-subtitle").textContent = `${c.code} — ${c.nameTh}`;
+
+      const ex = getEffectiveExams(c);
+      populateExamEditorSide("midterm", ex.midterm[0]);
+      populateExamEditorSide("final", ex.final[0]);
+
+      const modal = document.getElementById("exam-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function populateExamEditorSide(type, entry) {
+      const presetEl = document.getElementById(`${type}-preset`);
+      const dateSel = document.getElementById(`${type}-date-select`);
+      const customDate = document.getElementById(`${type}-custom-date`);
+      const slotSel = document.getElementById(`${type}-slot-select`);
+
+      if (!entry || entry.source === "SELF") {
+        presetEl.value = "SELF";
+      } else if (entry.source === "NONE") {
+        presetEl.value = "NONE";
+      } else {
+        presetEl.value = "SCHEDULED";
+        const hasOption = Array.from(dateSel.options).some(o => o.value === entry.date);
+        if (hasOption) {
+          dateSel.value = entry.date;
+          customDate.classList.add("hidden");
+        } else {
+          dateSel.value = "CUSTOM";
+          customDate.value = entry.date;
+          customDate.classList.remove("hidden");
+        }
+        if (entry.slot) slotSel.value = entry.slot;
+      }
+      toggleExamInputs(type);
+    }
+
+    function toggleExamInputs(type) {
+      const preset = document.getElementById(`${type}-preset`).value;
+      const fields = document.getElementById(`${type}-datetime-fields`);
+      if (preset === "SCHEDULED") {
+        fields.classList.remove("opacity-40", "pointer-events-none");
+      } else {
+        fields.classList.add("opacity-40", "pointer-events-none");
+      }
+    }
+
+    document.getElementById("midterm-date-select").addEventListener("change", function() {
+      document.getElementById("midterm-custom-date").classList.toggle("hidden", this.value !== "CUSTOM");
+    });
+    document.getElementById("final-date-select").addEventListener("change", function() {
+      document.getElementById("final-custom-date").classList.toggle("hidden", this.value !== "CUSTOM");
+    });
+
+    function readExamEditorSide(type) {
+      const preset = document.getElementById(`${type}-preset`).value;
+      if (preset === "SELF") {
+        return [{ source: "SELF", date: "", label: "รายวิชาจัดสอบเอง / สอบในคาบ", slot: "", note: "กำหนดเอง" }];
+      }
+      if (preset === "NONE") {
+        return [{ source: "NONE", date: "", label: type === "midterm" ? "ไม่มีสอบกลางภาค" : "ไม่มีสอบปลายภาค", slot: "", note: "" }];
+      }
+      const dateSel = document.getElementById(`${type}-date-select`);
+      const customDate = document.getElementById(`${type}-custom-date`);
+      const slotSel = document.getElementById(`${type}-slot-select`);
+
+      const isoDate = dateSel.value === "CUSTOM" ? customDate.value : dateSel.value;
+      const label = dateSel.value === "CUSTOM"
+        ? formatThaiDateShort(isoDate)
+        : dateSel.options[dateSel.selectedIndex].text;
+
+      return [{
+        source: "2569",
+        date: isoDate,
+        label: label || "ไม่ระบุวันที่",
+        slot: slotSel.value,
+        note: "กำหนดเอง"
+      }];
+    }
+
+    function saveExamModal() {
+      const courseId = document.getElementById("exam-edit-course-id").value;
+      const c = courses.find(item => item.id === courseId);
+      if (!c) return;
+
+      c.customExam = {
+        midterm: readExamEditorSide("midterm"),
+        final: readExamEditorSide("final")
+      };
+
+      saveState();
+      closeExamModal();
+      renderAll();
+      showToast(`บันทึกวันสอบวิชา ${c.code} เรียบร้อยแล้ว`);
+    }
+
+    function resetCourseExamToAuto() {
+      const courseId = document.getElementById("exam-edit-course-id").value;
+      const c = courses.find(item => item.id === courseId);
+      if (!c) return;
+      c.customExam = null;
+      saveState();
+      closeExamModal();
+      renderAll();
+      showToast(`คืนค่าวันสอบวิชา ${c.code} ตามประกาศ มก. แล้ว`);
+    }
+
+    function closeExamModal() {
+      const modal = document.getElementById("exam-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    // Export / Import JSON
+    function exportJSON() {
+      const dataStr = JSON.stringify(courses, null, 2);
+      const blob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `ku-planner-2569-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("ดาวน์โหลดไฟล์สำรองข้อมูล JSON เรียบร้อยแล้ว");
+    }
+
+    function importJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (!Array.isArray(parsed)) throw new Error("Invalid format");
+          courses = parsed;
+          saveState();
+          renderAll();
+          showToast(`กู้คืนข้อมูลสำเร็จ ${courses.length} รายวิชา`);
+        } catch (err) {
+          showToast("ไฟล์ JSON ไม่ถูกต้อง ไม่สามารถนำเข้าได้", "error");
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = "";
+    }
+
+    // Custom Confirm Modal
+    let pendingConfirmCallback = null;
+    function openConfirmModal(title, message, onConfirm) {
+      document.getElementById("confirm-title").textContent = title;
+      document.getElementById("confirm-message").textContent = message;
+      pendingConfirmCallback = onConfirm;
+      const modal = document.getElementById("confirm-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeConfirmModal() {
+      const modal = document.getElementById("confirm-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      pendingConfirmCallback = null;
+    }
+
+    document.getElementById("confirm-ok-btn").addEventListener("click", () => {
+      if (typeof pendingConfirmCallback === "function") {
+        pendingConfirmCallback();
+      }
+      closeConfirmModal();
+    });
+
+    function openResetConfirm() {
+      openConfirmModal(
+        "รีเซ็ตข้อมูลทั้งหมด",
+        "ต้องการล้างรายวิชาที่เพิ่มเองทั้งหมด และรีเซ็ตกลับเป็นรายวิชาตั้งต้น 3 วิชา (01999031, 01362102, 01387105) ใช่หรือไม่?",
+        async () => {
+          courses = JSON.parse(JSON.stringify(DEFAULT_COURSES));
+          try {
+            window.name = "";
+            window.localStorage.removeItem(STORAGE_KEY);
+          } catch (e) {}
+          await saveState(true);
+          renderAll();
+          showToast("รีเซ็ตข้อมูลกลับเป็นค่าเริ่มต้นเรียบร้อย");
+        }
+      );
+    }
+
+    // Toast Notification
+    function showToast(message, type = "success") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      const bg = type === "error"
+        ? "bg-rose-700 text-white"
+        : type === "warning"
+          ? "bg-amber-600 text-white"
+          : "bg-ku-dark text-white";
+      toast.className = `${bg} px-4 py-2.5 rounded-xl shadow-lg text-xs sm:text-sm font-medium pointer-events-auto transition-all`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.add("opacity-0");
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+
+    // Initialize Application
+    window.addEventListener("DOMContentLoaded", async () => {
+      await loadState();
+      renderAll();
+    });
+  </script>
+</body>
+</html>
